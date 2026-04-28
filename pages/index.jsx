@@ -486,7 +486,6 @@ export default function Home() {
 
   const onDateSubmit = (date) => {
     const displayDate = new Date(date).toLocaleDateString('de-DE');
-    setMsgs((p) => p.concat([{ from: 'user', text: displayDate, id: 'date-u' }]));
     answer(displayDate, date);
   };
 
@@ -638,7 +637,7 @@ export default function Home() {
                 </>
               )}
 
-              {afterStarted && !completed && afterCur?.id === 'phone' && <PhoneInput onSubmit={(phone) => { setUserPhone(phone); setMsgs((p) => p.concat([{ from: 'user', text: phone, id: 'phone-u' }])); afterAnswer(phone, phone); }} loading={submitting} />}
+              {afterStarted && !completed && afterCur?.id === 'phone' && <PhoneInput onSubmit={(phone) => { setUserPhone(phone); afterAnswer(phone, phone); }} loading={submitting} />}
               
               {afterStarted && !completed && showOpts && afterCur && afterCur.id !== 'phone' && (
                 <div style={{ borderTop: '1px solid ' + C.border, padding: '14px 18px', background: C.greenFaint }}>
