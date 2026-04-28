@@ -105,11 +105,6 @@ const FLOW = [
       { label: 'Noch unsicher', value: 'unsicher' },
     ],
   },
-  {
-    id: 'phonegate',
-    bot: ['Perfekt! 🎉', 'Dein personalisiertes Ergebnis wartet — trag deine Daten ein.'],
-    type: 'phonegate',
-  },
 ];
 
 function calcEG(a) {
@@ -228,23 +223,14 @@ function DateInput({ onSubmit, loading }) {
   );
 }
 
-function PhoneGate({ onSubmit, loading }) {
+function EmailGate({ onSubmit, loading }) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [step, setStep] = useState(1);
 
-  const handleStep1 = (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     if (name.trim() && email.trim() && email.includes('@')) {
-      setStep(2);
-    }
-  };
-
-  const handleStep2 = (e) => {
-    e.preventDefault();
-    if (phone.trim().length >= 9) {
-      onSubmit(name.trim(), email.trim(), phone.trim());
+      onSubmit(name.trim(), email.trim());
     }
   };
 
@@ -253,205 +239,248 @@ function PhoneGate({ onSubmit, loading }) {
       background: '#fff',
       borderRadius: 14,
       border: '1.5px solid ' + C.green,
-      padding: 24,
+      padding: 20,
       margin: '8px 0',
       boxShadow: '0 4px 12px rgba(45,106,79,0.15)'
     }}>
-      {/* Header */}
-      <div style={{ textAlign: 'center', marginBottom: 20 }}>
-        <div style={{ fontSize: 32, marginBottom: 8 }}>🔐</div>
+      <div style={{ textAlign: 'center', marginBottom: 16 }}>
         <h3 style={{
           fontFamily: "'Playfair Display',serif",
-          fontSize: 18,
+          fontSize: 16,
           fontWeight: 700,
           color: C.forest,
-          margin: '0 0 6px'
+          margin: '0 0 4px'
         }}>
-          {step === 1 ? 'Dein Ergebnis wartet' : 'Alina ruft dich an'}
+          Dein Ergebnis wartet
         </h3>
-        <p style={{ fontSize: 13, color: C.textMed, margin: 0 }}>
-          {step === 1 
-            ? 'Kostenlos & unverbindlich'
-            : 'Alina berät dich zur optimalen Lösung'
-          }
+        <p style={{ fontSize: 12, color: C.textLight, margin: 0 }}>
+          Gib deine Daten ein
         </p>
       </div>
 
-      {/* Step 1: Email */}
-      {step === 1 && (
-        <form onSubmit={handleStep1} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <input
-            type="text"
-            placeholder="Dein Vorname"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            style={{
-              border: '1.5px solid ' + C.border,
-              borderRadius: 10,
-              padding: '12px 14px',
-              fontSize: 14,
-              fontFamily: 'inherit',
-              outline: 'none'
-            }}
-          />
-          <input
-            type="email"
-            placeholder="Deine E-Mail"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            style={{
-              border: '1.5px solid ' + C.border,
-              borderRadius: 10,
-              padding: '12px 14px',
-              fontSize: 14,
-              fontFamily: 'inherit',
-              outline: 'none'
-            }}
-          />
-          <button
-            type="submit"
-            disabled={loading}
-            style={{
-              background: 'linear-gradient(135deg,' + C.green + ',' + C.greenMid + ')',
-              color: '#fff',
-              border: 'none',
-              borderRadius: 10,
-              padding: '13px 20px',
-              fontSize: 15,
-              fontWeight: 700,
-              cursor: loading ? 'not-allowed' : 'pointer',
-              fontFamily: 'inherit'
-            }}
-          >
-            {loading ? 'Wird verarbeitet...' : 'Weiter zum Ergebnis →'}
-          </button>
-        </form>
-      )}
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <input
+          type="text"
+          placeholder="Dein Vorname"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          style={{
+            border: '1.5px solid ' + C.border,
+            borderRadius: 10,
+            padding: '11px 12px',
+            fontSize: 14,
+            fontFamily: 'inherit',
+            outline: 'none'
+          }}
+        />
+        <input
+          type="email"
+          placeholder="Deine E-Mail"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          style={{
+            border: '1.5px solid ' + C.border,
+            borderRadius: 10,
+            padding: '11px 12px',
+            fontSize: 14,
+            fontFamily: 'inherit',
+            outline: 'none'
+          }}
+        />
+        <button
+          type="submit"
+          disabled={loading}
+          style={{
+            background: 'linear-gradient(135deg,' + C.green + ',' + C.greenMid + ')',
+            color: '#fff',
+            border: 'none',
+            borderRadius: 10,
+            padding: '12px 16px',
+            fontSize: 14,
+            fontWeight: 700,
+            cursor: loading ? 'not-allowed' : 'pointer',
+            fontFamily: 'inherit'
+          }}
+        >
+          {loading ? 'Wird verarbeitet...' : 'Ergebnis anzeigen'}
+        </button>
+      </form>
 
-      {/* Step 2: Phone */}
-      {step === 2 && (
-        <form onSubmit={handleStep2} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <input
-            type="tel"
-            placeholder="Deine Telefonnummer"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            style={{
-              border: '1.5px solid ' + C.border,
-              borderRadius: 10,
-              padding: '12px 14px',
-              fontSize: 14,
-              fontFamily: 'inherit',
-              outline: 'none'
-            }}
-          />
-          <button
-            type="submit"
-            disabled={loading}
-            style={{
-              background: 'linear-gradient(135deg,' + C.green + ',' + C.greenMid + ')',
-              color: '#fff',
-              border: 'none',
-              borderRadius: 10,
-              padding: '13px 20px',
-              fontSize: 15,
-              fontWeight: 700,
-              cursor: loading ? 'not-allowed' : 'pointer',
-              fontFamily: 'inherit'
-            }}
-          >
-            {loading ? 'Wird verarbeitet...' : 'Beratung buchen'}
-          </button>
-          <button
-            type="button"
-            onClick={() => setStep(1)}
-            style={{
-              background: 'transparent',
-              border: 'none',
-              color: C.textLight,
-              fontSize: 13,
-              cursor: 'pointer',
-              fontFamily: 'inherit',
-              textDecoration: 'underline'
-            }}
-          >
-            ← Zurück
-          </button>
-        </form>
-      )}
-
-      {/* Trust Badges */}
-      <div style={{ marginTop: 18, paddingTop: 16, borderTop: '1px solid ' + C.borderLight, fontSize: 12, color: C.textLight, textAlign: 'center', lineHeight: 1.6 }}>
-        <div>
-          ✅ <strong>Zertifiziert</strong> — Wirtschaftswissenschaftlerin<br/>
-          🔒 <strong>DSGVO-konform</strong> — Deine Daten sind sicher
-        </div>
+      <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid ' + C.borderLight, fontSize: 11, color: C.textLight, textAlign: 'center' }}>
+        🔒 Deine Daten sind DSGVO-konform geschützt
       </div>
     </div>
   );
 }
 
-function Result({ result, arbeitsmodell, geschwister }) {
-  const price = arbeitsmodell === 'angestellt' ? 297 : 397;
+function Result({ result, name, arbeitsmodell, geschwister }) {
   const yearWithoutAlina = result.eg * 12;
   const yearWithAlina = result.opt * 12;
   const savings = yearWithAlina - yearWithoutAlina;
 
   return (
     <div style={{ background: C.cream, borderRadius: 14, border: '1px solid ' + C.border, padding: 20, margin: '8px 0' }}>
-      <h3 style={{ fontFamily: "'Playfair Display',serif", fontSize: 18, fontWeight: 700, color: C.forest, margin: '0 0 18px', textAlign: 'center' }}>Dein persönliches Ergebnis</h3>
+      <h3 style={{ fontFamily: "'Playfair Display',serif", fontSize: 16, fontWeight: 700, color: C.forest, margin: '0 0 16px' }}>
+        {name}, dein Ergebnis ist fertig:
+      </h3>
 
-      {/* Ohne Alina */}
       <div style={{ marginBottom: 16 }}>
-        <div style={{ fontSize: 12, fontWeight: 700, color: C.textLight, marginBottom: 8, textTransform: 'uppercase' }}>Ohne Alina (Standard):</div>
-        <div style={{ background: '#fff', borderRadius: 12, border: '1px solid ' + C.border, padding: 14 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-            <div>
-              <div style={{ fontSize: 20, fontWeight: 700, color: C.text }}>{result.eg}€</div>
-              <div style={{ fontSize: 12, color: C.textLight }}>pro Monat</div>
-            </div>
-            <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: 18, fontWeight: 700, color: C.text }}>{yearWithoutAlina.toLocaleString('de-DE')}€</div>
-              <div style={{ fontSize: 12, color: C.textLight }}>pro Jahr</div>
-            </div>
-          </div>
-        </div>
+        <div style={{ fontSize: 11, color: C.textLight, marginBottom: 6, fontWeight: 600 }}>OHNE INDIVIDUELLE BERATUNG:</div>
+        <div style={{ fontSize: 18, fontWeight: 700, color: C.text }}>{result.eg}€/Monat</div>
       </div>
 
-      {/* Mit Alina */}
-      <div style={{ marginBottom: 20 }}>
-        <div style={{ fontSize: 12, fontWeight: 700, color: C.green, marginBottom: 8, textTransform: 'uppercase' }}>Mit Alina (Optimiert):</div>
-        <div style={{ background: C.greenFaint, borderRadius: 12, border: '1.5px solid ' + C.green, padding: 14 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-            <div>
-              <div style={{ fontSize: 20, fontWeight: 700, color: C.green }}>{result.opt}€</div>
-              <div style={{ fontSize: 12, color: C.green }}>pro Monat</div>
-            </div>
-            <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: 18, fontWeight: 700, color: C.green }}>{yearWithAlina.toLocaleString('de-DE')}€</div>
-              <div style={{ fontSize: 12, color: C.green }}>pro Jahr</div>
-            </div>
-          </div>
-        </div>
+      <div style={{ marginBottom: 18 }}>
+        <div style={{ fontSize: 11, color: C.green, marginBottom: 6, fontWeight: 600 }}>INKL. INDIVIDUELLE OPTIMIERUNG:</div>
+        <div style={{ fontSize: 18, fontWeight: 700, color: C.green }}>{result.opt}€/Monat</div>
       </div>
 
-      {/* Die Ersparis */}
       {savings > 0 && (
-        <div style={{ background: 'linear-gradient(135deg, #fff3e0, ' + C.greenFaint + ')', borderRadius: 12, border: '1.5px solid #ff9800', padding: 16, marginBottom: 14 }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: '#ff6b35', marginBottom: 8, textTransform: 'uppercase' }}>💰 Deine Ersparis:</div>
-          <div style={{ fontSize: 24, fontWeight: 700, color: '#ff6b35', marginBottom: 8 }}>+{savings.toLocaleString('de-DE')}€</div>
-          <div style={{ fontSize: 13, color: '#cc5500', lineHeight: 1.5 }}>
-            <strong>pro Jahr</strong><br/>
-            Das ist echtes Geld, das dir sonst entgeht!
-          </div>
+        <div style={{ background: C.greenFaint, borderRadius: 12, border: '1px solid ' + C.green, padding: 14, marginBottom: 14 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: C.green, marginBottom: 6 }}>UNTERSCHIED:</div>
+          <div style={{ fontSize: 20, fontWeight: 700, color: C.green, marginBottom: 8 }}>+{(result.opt - result.eg)}€ / Monat</div>
+          <div style={{ fontSize: 12, fontWeight: 700, color: C.green }}>Jährlich: +{savings.toLocaleString('de-DE')}€</div>
         </div>
       )}
 
-      {geschwister === 'ja' && (
-        <div style={{ background: '#e8f5e9', borderLeft: '3px solid #4caf50', padding: 12, fontSize: 13, borderRadius: 8 }}>
-          <strong>👶 Geschwisterbonus:</strong> Nächstes Jahr gibt es zusätzlich einen Zuschlag – Alina rechnet das mit rein.
+      <div style={{ fontSize: 13, color: C.textMed, lineHeight: 1.5, fontStyle: 'italic' }}>
+        Das ist Geld, das dir ohne Beratung entgeht.
+      </div>
+    </div>
+  );
+}
+
+function PhoneAndTimeGate({ onSubmit, loading, phone }) {
+  const [tempPhone, setTempPhone] = useState(phone);
+  const [editPhone, setEditPhone] = useState(false);
+  const [time, setTime] = useState('');
+  const [error, setError] = useState('');
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!time) {
+      setError('Bitte wähle ein Zeitfenster');
+      return;
+    }
+    onSubmit(tempPhone, time);
+  };
+
+  return (
+    <div style={{
+      background: '#fff',
+      borderRadius: 14,
+      border: '1.5px solid ' + C.green,
+      padding: 20,
+      margin: '8px 0',
+      boxShadow: '0 4px 12px rgba(45,106,79,0.15)'
+    }}>
+      <h3 style={{ fontFamily: "'Playfair Display',serif", fontSize: 16, fontWeight: 700, color: C.forest, margin: '0 0 14px' }}>
+        Wann bist du am besten erreichbar?
+      </h3>
+
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div>
+          <div style={{ fontSize: 12, fontWeight: 600, color: C.textLight, marginBottom: 6 }}>DEINE TELEFONNUMMER:</div>
+          {!editPhone ? (
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: C.borderLight, borderRadius: 10, padding: '11px 14px' }}>
+              <div style={{ fontSize: 14, color: C.text, fontWeight: 600 }}>{tempPhone}</div>
+              <button
+                type="button"
+                onClick={() => setEditPhone(true)}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: C.green,
+                  fontSize: 13,
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  fontFamily: 'inherit'
+                }}
+              >
+                Bearbeiten
+              </button>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', gap: 8 }}>
+              <input
+                type="tel"
+                value={tempPhone}
+                onChange={(e) => setTempPhone(e.target.value)}
+                style={{
+                  flex: 1,
+                  border: '1.5px solid ' + C.border,
+                  borderRadius: 10,
+                  padding: '11px 12px',
+                  fontSize: 14,
+                  fontFamily: 'inherit',
+                  outline: 'none'
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => setEditPhone(false)}
+                style={{
+                  background: C.green,
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: 10,
+                  padding: '11px 14px',
+                  fontSize: 13,
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  fontFamily: 'inherit'
+                }}
+              >
+                OK
+              </button>
+            </div>
+          )}
         </div>
-      )}
+
+        <div>
+          <div style={{ fontSize: 12, fontWeight: 600, color: C.textLight, marginBottom: 6 }}>ZEITFENSTER:</div>
+          <select
+            value={time}
+            onChange={(e) => {
+              setTime(e.target.value);
+              setError('');
+            }}
+            style={{
+              width: '100%',
+              border: error ? '2px solid #e74c3c' : '1.5px solid ' + C.border,
+              borderRadius: 10,
+              padding: '11px 12px',
+              fontSize: 14,
+              fontFamily: 'inherit',
+              outline: 'none'
+            }}
+          >
+            <option value="">Bitte wählen...</option>
+            <option value="09-12">09:00 - 12:00 Uhr</option>
+            <option value="12-15">12:00 - 15:00 Uhr</option>
+            <option value="15-18">15:00 - 18:00 Uhr</option>
+            <option value="18-20">18:00 - 20:00 Uhr</option>
+          </select>
+          {error && <div style={{ fontSize: 11, color: '#e74c3c', marginTop: 4 }}>{error}</div>}
+        </div>
+
+        <button
+          type="submit"
+          disabled={loading}
+          style={{
+            background: 'linear-gradient(135deg,' + C.green + ',' + C.greenMid + ')',
+            color: '#fff',
+            border: 'none',
+            borderRadius: 10,
+            padding: '12px 16px',
+            fontSize: 14,
+            fontWeight: 700,
+            cursor: loading ? 'not-allowed' : 'pointer',
+            fontFamily: 'inherit'
+          }}
+        >
+          {loading ? 'Wird verarbeitet...' : 'Beratung buchen'}
+        </button>
+      </form>
     </div>
   );
 }
@@ -462,18 +491,19 @@ export default function Home() {
   const [msgs, setMsgs] = useState([]);
   const [showOpts, setShowOpts] = useState(false);
   const [started, setStarted] = useState(false);
-  const [gated, setGated] = useState(false);
-  const [showCallTime, setShowCallTime] = useState(false);
+  const [emailGated, setEmailGated] = useState(false);
+  const [resultShown, setResultShown] = useState(false);
+  const [wantHelp, setWantHelp] = useState(null);
+  const [phoneGated, setPhoneGated] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [uName, setUName] = useState('');
   const [userEmail, setUserEmail] = useState('');
   const [userPhone, setUserPhone] = useState('');
-  const [showRes, setShowRes] = useState(false);
   const [completed, setCompleted] = useState(false);
   const chatRef = useRef(null);
 
   const cur = FLOW[step];
-  const result = gated ? calcEG(answers) : null;
+  const result = emailGated ? calcEG(answers) : null;
 
   useEffect(() => {
     if (!cur) return;
@@ -488,7 +518,7 @@ export default function Home() {
 
   useEffect(() => {
     if (chatRef.current) chatRef.current.scrollTop = chatRef.current.scrollHeight;
-  }, [msgs, showOpts, showRes, gated, showCallTime]);
+  }, [msgs, showOpts, resultShown, wantHelp, phoneGated]);
 
   const answer = (display, value) => {
     setShowOpts(false);
@@ -509,29 +539,36 @@ export default function Home() {
     setTimeout(() => setStep(nextStep), 300);
   };
 
-  const onDate = (date) => {
-    const displayDate = new Date(date).toLocaleDateString('de-DE');
-    setAnswers({ ...answers, et: date });
-    setMsgs((p) => p.concat([{ from: 'user', text: displayDate, id: 'date-u' }]));
-    setTimeout(() => setStep(2), 300);
-  };
-
-  const onPhone = (firstName, email, phone) => {
+  const onEmail = (firstName, email) => {
     setUName(firstName);
     setUserEmail(email);
-    setUserPhone(phone);
-
-    setMsgs((p) => p.concat([{ from: 'user', text: firstName + ' — ' + email, id: 'phone-u' }]));
-
+    setMsgs((p) => p.concat([{ from: 'user', text: firstName, id: 'email-u' }]));
     setTimeout(() => {
-      setGated(true);
+      setEmailGated(true);
       setShowOpts(false);
-      setMsgs((p) => p.concat([{ from: 'bot', text: firstName + ', hier ist dein persönliches Ergebnis:', delay: 300, id: 'res-b' }]));
-      setTimeout(() => setShowRes(true), 800);
+      setMsgs((p) => p.concat([{ from: 'bot', text: firstName + ', dein Ergebnis ist fertig:', delay: 300, id: 'res-b' }]));
+      setTimeout(() => setResultShown(true), 800);
     }, 600);
   };
 
-  const onComplete = () => {
+  const handleHelpDecision = (want) => {
+    setShowOpts(false);
+    setWantHelp(want);
+    if (want === 'yes') {
+      setMsgs((p) => p.concat([{ from: 'user', text: 'Ja', id: 'help-yes' }]));
+      setTimeout(() => {
+        setPhoneGated(true);
+      }, 600);
+    } else {
+      setMsgs((p) => p.concat([{ from: 'user', text: 'Nein', id: 'help-no' }]));
+      setTimeout(() => {
+        setMsgs((p) => p.concat([{ from: 'bot', text: 'Danke! Alles Gute für dich und deine Familie! 💚', delay: 300, id: 'exit-b' }]));
+      }, 600);
+    }
+  };
+
+  const onPhoneAndTime = (phone, time) => {
+    setUserPhone(phone);
     setSubmitting(true);
     const r = calcEG(answers);
 
@@ -542,7 +579,8 @@ export default function Home() {
         timestamp: new Date().toISOString(),
         name: uName,
         email: userEmail,
-        phone: userPhone,
+        phone: phone,
+        callTime: time,
         et: answers.et,
         arbeitsmodell: answers.arbeitsmodell,
         einkommen: answers.einkommen_angestellt || answers.einkommen_selbstaendig || '',
@@ -555,6 +593,8 @@ export default function Home() {
         elterngeld_diff: r.diff,
       }),
     }).catch(console.log);
+
+    setMsgs((p) => p.concat([{ from: 'user', text: time, id: 'time-u' }]));
 
     setTimeout(() => {
       setSubmitting(false);
@@ -582,59 +622,54 @@ export default function Home() {
         <p style={{ fontSize: 14, color: C.textMed, marginTop: 8 }}>7 Fragen in 60 Sekunden – dann weißt du, wie viel dir zusteht.</p>
       </section>
 
-      {!started ? (
-        <section style={{ maxWidth: 720, margin: '0 auto', padding: '0 20px 16px' }}>
-          <div style={{ background: '#fff', borderRadius: 16, border: '1px solid ' + C.border, padding: '20px 24px', textAlign: 'center' }}>
-            <img src={ALINA_FOTO} alt="Alina" style={{ width: 56, height: 56, borderRadius: '50%', objectFit: 'cover', objectPosition: 'center 30%', marginBottom: 8 }} />
-            <h2 style={{ fontFamily: "'Playfair Display',serif", fontSize: 18, fontWeight: 700, color: C.forest }}>Elterngeld-Schnellcheck</h2>
-            <p style={{ fontSize: 13, color: C.textMed, margin: '8px 0 16px' }}>7 Fragen · 60 Sekunden · Sofort dein Ergebnis</p>
-            <button
-              onClick={() => setStarted(true)}
-              style={{ background: 'linear-gradient(135deg,' + C.green + ',' + C.greenMid + ')', color: '#fff', border: 'none', borderRadius: 12, padding: '14px 32px', fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}
-            >
-              Schnellcheck starten →
-            </button>
-          </div>
-        </section>
-      ) : (
-        <section style={{ maxWidth: 720, margin: '0 auto', padding: '0 20px 24px' }}>
-          <div style={{ background: '#fff', borderRadius: 18, border: '1px solid ' + C.border, overflow: 'hidden' }}>
-            <div ref={chatRef} style={{ padding: '20px 18px', overflowY: 'auto', maxHeight: '58vh', display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {msgs.map((m) => (m.from === 'bot' ? <Bot key={m.id} delay={m.delay}>{m.text}</Bot> : <User key={m.id} text={m.text} />))}
-              {showOpts && cur?.id === 'et' && <DateInput onSubmit={onDate} loading={submitting} />}
-              {showOpts && cur?.type === 'phonegate' && !gated && <PhoneGate onSubmit={onPhone} loading={submitting} />}
-              {showRes && result && <Result result={result} answers={answers} arbeitsmodell={answers.arbeitsmodell} geschwister={answers.geschwister} />}
-              {gated && !completed && (
-                <div style={{ marginTop: 16, textAlign: 'center' }}>
-                  <button
-                    onClick={onComplete}
-                    disabled={submitting}
-                    style={{
-                      background: C.green,
-                      color: '#fff',
-                      border: 'none',
-                      borderRadius: 10,
-                      padding: '12px 24px',
-                      fontSize: 14,
-                      fontWeight: 700,
-                      cursor: submitting ? 'not-allowed' : 'pointer',
-                      fontFamily: 'inherit'
-                    }}
-                  >
-                    {submitting ? 'Wird gesendet...' : 'Beratungstermin buchen'}
-                  </button>
+      <section style={{ maxWidth: 720, margin: '0 auto', padding: '0 20px 24px' }}>
+        <div style={{ background: '#fff', borderRadius: 18, border: '1px solid ' + C.border, overflow: 'hidden' }}>
+          <div ref={chatRef} style={{ padding: '20px 18px', overflowY: 'auto', maxHeight: '45vh', display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {msgs.map((m) => (m.from === 'bot' ? <Bot key={m.id} delay={m.delay}>{m.text}</Bot> : <User key={m.id} text={m.text} />))}
+            
+            {/* DateInput für ET-Frage */}
+            {showOpts && cur?.id === 'et' && <DateInput onSubmit={(date) => { setAnswers({ ...answers, et: date }); setMsgs((p) => p.concat([{ from: 'user', text: new Date(date).toLocaleDateString('de-DE'), id: 'date-u' }])); setTimeout(() => setStep(2), 300); }} loading={submitting} />}
+            
+            {/* EmailGate nach allen 7 Fragen */}
+            {step > FLOW.length - 1 && !emailGated && <EmailGate onSubmit={onEmail} loading={submitting} />}
+            
+            {/* Ergebnis + Ja/Nein */}
+            {resultShown && result && !wantHelp && (
+              <>
+                <Result result={result} name={uName} arbeitsmodell={answers.arbeitsmodell} geschwister={answers.geschwister} />
+                <div style={{ marginTop: 8, display: 'flex', gap: 8, fontSize: 12, fontWeight: 600, color: C.textMed }}>
+                  Möchtest du erfahren, wie wir dir helfen können?
                 </div>
-              )}
-            </div>
-            {showOpts && cur && cur.id !== 'et' && cur.type !== 'phonegate' && !gated && (
-              <div style={{ borderTop: '1px solid ' + C.border, padding: '14px 18px', background: C.greenFaint }}>
-                {cur.type === 'start' && <Btn label="Los geht's! 🚀" onClick={() => answer('Los geht\'s!', true)} />}
-                {cur.type === 'select' && <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>{cur.options.map((o) => <Btn key={o.value} label={o.label} onClick={() => answer(o.label, o.value)} />)}</div>}
-              </div>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <button onClick={() => handleHelpDecision('yes')} style={{ flex: 1, background: C.green, color: '#fff', border: 'none', borderRadius: 10, padding: '10px', fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>Ja</button>
+                  <button onClick={() => handleHelpDecision('no')} style={{ flex: 1, background: C.borderLight, color: C.text, border: 'none', borderRadius: 10, padding: '10px', fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>Nein</button>
+                </div>
+              </>
+            )}
+            
+            {/* Phone + Zeitfenster + Fragen */}
+            {phoneGated && !completed && <PhoneAndTimeGate onSubmit={onPhoneAndTime} loading={submitting} phone={userPhone} />}
+
+            {phoneGated && !completed && step < FLOW.length && (
+              <>
+                {showOpts && cur && cur.id !== 'et' && (
+                  <div style={{ borderTop: '1px solid ' + C.border, padding: '14px 18px', background: C.greenFaint, marginTop: 8 }}>
+                    {cur.type === 'select' && <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>{cur.options.map((o) => <Btn key={o.value} label={o.label} onClick={() => answer(o.label, o.value)} />)}</div>}
+                  </div>
+                )}
+              </>
             )}
           </div>
-        </section>
-      )}
+
+          {/* Buttons für normale Fragen */}
+          {showOpts && cur && cur.id !== 'et' && step <= FLOW.length - 1 && !emailGated && !resultShown && (
+            <div style={{ borderTop: '1px solid ' + C.border, padding: '14px 18px', background: C.greenFaint }}>
+              {cur.type === 'start' && <Btn label="Los geht's! 🚀" onClick={() => answer('Los geht\'s!', true)} />}
+              {cur.type === 'select' && <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>{cur.options.map((o) => <Btn key={o.value} label={o.label} onClick={() => answer(o.label, o.value)} />)}</div>}
+            </div>
+          )}
+        </div>
+      </section>
 
       <section style={{ maxWidth: 720, margin: '0 auto', padding: '36px 20px' }}>
         <h2 style={{ fontFamily: "'Playfair Display',serif", fontSize: 22, fontWeight: 700, color: C.forest, textAlign: 'center', marginBottom: 24 }}>Das haben andere Familien erreicht</h2>
@@ -668,7 +703,7 @@ export default function Home() {
       </section>
 
       <section style={{ maxWidth: 720, margin: '0 auto', padding: '20px 20px 36px' }}>
-        <div style={{ background: '#fff', borderRadius: 16, border: '1px solid ' + C.border, padding: 28 }}>
+        <div style={{ background: '#fff', borderRadius: 16, border: '1px solid ' + C.border, padding: 28, textAlign: 'center' }}>
           <img src={ALINA_FOTO} alt="Alina" style={{ width: 90, height: 90, borderRadius: '50%', objectFit: 'cover', objectPosition: 'center 30%', marginBottom: 12 }} />
           <h3 style={{ fontFamily: "'Playfair Display',serif", fontSize: 18, fontWeight: 700, color: C.forest }}>Alina Nußbaum</h3>
           <p style={{ fontSize: 13, color: C.green, fontWeight: 600, marginBottom: 10 }}>Elterngeld-Expertin · Wirtschaftswissenschaftlerin</p>
