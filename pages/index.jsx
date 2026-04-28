@@ -22,7 +22,7 @@ const C = {
 const FLOW = [
   {
     id: 'welcome',
-    bot: ['Ich bin Alina, Elterngeld-Expertin 👋', 'In 2 Minuten weißt du genau, wie viel dir zusteht.'],
+    bot: ['Ich bin Alina, Elterngeld-Expertin 👋', 'In 60 Sekunden weißt du genau, wie viel dir zusteht.'],
     type: 'start',
   },
   {
@@ -393,35 +393,63 @@ function PhoneGate({ onSubmit, loading }) {
 
 function Result({ result, arbeitsmodell, geschwister }) {
   const price = arbeitsmodell === 'angestellt' ? 297 : 397;
-  const yearTotal = result.opt * 12;
-  const savings = (result.opt - result.eg) * 12;
+  const yearWithoutAlina = result.eg * 12;
+  const yearWithAlina = result.opt * 12;
+  const savings = yearWithAlina - yearWithoutAlina;
 
   return (
     <div style={{ background: C.cream, borderRadius: 14, border: '1px solid ' + C.border, padding: 20, margin: '8px 0' }}>
-      <h3 style={{ fontFamily: "'Playfair Display',serif", fontSize: 18, fontWeight: 700, color: C.forest, margin: '0 0 16px' }}>📊 Dein Ergebnis</h3>
+      <h3 style={{ fontFamily: "'Playfair Display',serif", fontSize: 18, fontWeight: 700, color: C.forest, margin: '0 0 18px', textAlign: 'center' }}>Dein persönliches Ergebnis</h3>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
-        <div style={{ border: '1px solid ' + C.border, borderRadius: 10, padding: 14, background: '#fff' }}>
-          <div style={{ fontSize: 11, fontWeight: 600, color: C.textLight }}>STANDARD</div>
-          <div style={{ fontSize: 20, fontWeight: 700, marginTop: 4 }}>{result.eg}€</div>
-          <div style={{ fontSize: 11, color: C.textLight, marginTop: 4 }}>pro Monat</div>
-        </div>
-        <div style={{ border: '1.5px solid ' + C.green, borderRadius: 10, padding: 14, background: C.greenFaint }}>
-          <div style={{ fontSize: 11, fontWeight: 600, color: C.green }}>MIT ALINA</div>
-          <div style={{ fontSize: 20, fontWeight: 700, color: C.green, marginTop: 4 }}>{result.opt}€</div>
-          <div style={{ fontSize: 11, color: C.green, marginTop: 4 }}>pro Monat</div>
+      {/* Ohne Alina */}
+      <div style={{ marginBottom: 16 }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: C.textLight, marginBottom: 8, textTransform: 'uppercase' }}>Ohne Alina (Standard):</div>
+        <div style={{ background: '#fff', borderRadius: 12, border: '1px solid ' + C.border, padding: 14 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+            <div>
+              <div style={{ fontSize: 20, fontWeight: 700, color: C.text }}>{result.eg}€</div>
+              <div style={{ fontSize: 12, color: C.textLight }}>pro Monat</div>
+            </div>
+            <div style={{ textAlign: 'right' }}>
+              <div style={{ fontSize: 18, fontWeight: 700, color: C.text }}>{yearWithoutAlina.toLocaleString('de-DE')}€</div>
+              <div style={{ fontSize: 12, color: C.textLight }}>pro Jahr</div>
+            </div>
+          </div>
         </div>
       </div>
 
+      {/* Mit Alina */}
+      <div style={{ marginBottom: 20 }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: C.green, marginBottom: 8, textTransform: 'uppercase' }}>Mit Alina (Optimiert):</div>
+        <div style={{ background: C.greenFaint, borderRadius: 12, border: '1.5px solid ' + C.green, padding: 14 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+            <div>
+              <div style={{ fontSize: 20, fontWeight: 700, color: C.green }}>{result.opt}€</div>
+              <div style={{ fontSize: 12, color: C.green }}>pro Monat</div>
+            </div>
+            <div style={{ textAlign: 'right' }}>
+              <div style={{ fontSize: 18, fontWeight: 700, color: C.green }}>{yearWithAlina.toLocaleString('de-DE')}€</div>
+              <div style={{ fontSize: 12, color: C.green }}>pro Jahr</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Die Ersparis */}
       {savings > 0 && (
-        <div style={{ background: '#fff3cd', borderLeft: '4px solid #ff9800', padding: 14, marginBottom: 14, fontSize: 14, borderRadius: 8 }}>
-          <div style={{ fontWeight: 700, color: '#cc7700', marginBottom: 4 }}>💰 Das sind {savings.toLocaleString('de-DE')}€ mehr pro Jahr!</div>
+        <div style={{ background: 'linear-gradient(135deg, #fff3e0, ' + C.greenFaint + ')', borderRadius: 12, border: '1.5px solid #ff9800', padding: 16, marginBottom: 14 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: '#ff6b35', marginBottom: 8, textTransform: 'uppercase' }}>💰 Deine Ersparis:</div>
+          <div style={{ fontSize: 24, fontWeight: 700, color: '#ff6b35', marginBottom: 8 }}>+{savings.toLocaleString('de-DE')}€</div>
+          <div style={{ fontSize: 13, color: '#cc5500', lineHeight: 1.5 }}>
+            <strong>pro Jahr</strong><br/>
+            Das ist echtes Geld, das dir sonst entgeht!
+          </div>
         </div>
       )}
 
       {geschwister === 'ja' && (
-        <div style={{ background: '#e8f5e9', borderLeft: '3px solid #4caf50', padding: 12, marginBottom: 12, fontSize: 13 }}>
-          <strong>👶 Geschwisterbonus:</strong> Nächstes Jahr gibt es einen zusätzlichen Zuschlag.
+        <div style={{ background: '#e8f5e9', borderLeft: '3px solid #4caf50', padding: 12, fontSize: 13, borderRadius: 8 }}>
+          <strong>👶 Geschwisterbonus:</strong> Nächstes Jahr gibt es zusätzlich einen Zuschlag – Alina rechnet das mit rein.
         </div>
       )}
     </div>
@@ -498,7 +526,7 @@ export default function Home() {
     setTimeout(() => {
       setGated(true);
       setShowOpts(false);
-      setMsgs((p) => p.concat([{ from: 'bot', text: firstName + ', hier ist dein personalisiertes Ergebnis:', delay: 300, id: 'res-b' }]));
+      setMsgs((p) => p.concat([{ from: 'bot', text: firstName + ', hier ist dein persönliches Ergebnis:', delay: 300, id: 'res-b' }]));
       setTimeout(() => setShowRes(true), 800);
     }, 600);
   };
@@ -654,4 +682,3 @@ export default function Home() {
     </div>
   );
 }
-
