@@ -119,13 +119,14 @@ const AFTER_FLOW = [
     ],
   },
   {
-    id: 'partner_question',
-    bot: ['Sollen wir im Gespräch auch deinen Partner/deine Partnerin durchrechnen?'],
+    id: 'help_preference',
+    bot: ['Wie können wir dir am besten helfen?'],
     type: 'select',
     options: [
-      { label: 'Nur meine Situation', value: 'nur_ich' },
-      { label: 'Auch meinen Partner einberechnen', value: 'mit_partner' },
-      { label: 'Weiß nicht', value: 'unsicher' },
+      { label: 'Schritt-für-Schritt erklären', value: 'erklaeren' },
+      { label: 'Alles für mich durchrechnen', value: 'durchrechnen' },
+      { label: 'Den Antrag komplett ausfüllen', value: 'ausfuellen' },
+      { label: 'Alles selbst machen, ich vertraue euch', value: 'vertrauen' },
     ],
   },
   {
