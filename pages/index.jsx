@@ -22,21 +22,26 @@ const C = {
 const FLOW = [
   {
     id: 'welcome',
-    bot: ['Ich bin Alina, Elterngeld-Expertin 👋', 'In 60 Sekunden weißt du genau, wie viel dir zusteht.'],
+    bot: ['Ich bin Alina, Elterngeld-Expertin 👋', 'In 2 Minuten weißt du genau, wie viel dir zusteht.'],
     type: 'start',
   },
   {
+    id: 'et',
+    bot: ['Erste Frage: Wann ist dein Entbindungstermin?'],
+    type: 'date',
+  },
+  {
     id: 'arbeitsmodell',
-    bot: ['Erste Frage: Arbeitest du angestellt oder machst du dein eigenes Ding?'],
+    bot: ['Arbeitest du angestellt oder bist du selbständig?'],
     type: 'select',
     options: [
-      { label: 'Angestellt', value: 'angestellt' },
-      { label: 'Selbständig/Freiberufler', value: 'selbstaendig' },
+      { label: 'Angestellt / Beamtin', value: 'angestellt' },
+      { label: 'Selbständig / Freiberufler', value: 'selbstaendig' },
     ],
   },
   {
     id: 'einkommen_angestellt',
-    bot: ['Wie viel verdienst du ungefähr monatlich (Brutto)?'],
+    bot: ['Dein Brutto-Monatseinkommen (letzte 12 Monate)?'],
     type: 'select',
     options: [
       { label: 'Unter 1.500€', value: 1200 },
@@ -48,7 +53,7 @@ const FLOW = [
   },
   {
     id: 'einkommen_selbstaendig',
-    bot: ['Wie sah dein durchschnittlicher monatlicher Gewinn aus?'],
+    bot: ['Dein durchschnittlicher monatlicher Gewinn (netto)?'],
     type: 'select',
     options: [
       { label: 'Unter 1.500€', value: 1200 },
@@ -60,7 +65,7 @@ const FLOW = [
   },
   {
     id: 'geschwister',
-    bot: ['Gibt es Geschwister?'],
+    bot: ['Gibt es ältere Geschwister? (Wichtig für den Bonus)'],
     type: 'select',
     options: [
       { label: 'Ja', value: 'ja' },
@@ -69,8 +74,40 @@ const FLOW = [
     ],
   },
   {
+    id: 'steuerklasse',
+    bot: ['Deine Steuerklasse oder Partnerschaftssituation?'],
+    type: 'select',
+    options: [
+      { label: 'Alleinerziehend (SK II)', value: 'sk2' },
+      { label: 'Verheiratet (SK III)', value: 'sk3' },
+      { label: 'Verheiratet (SK IV)', value: 'sk4' },
+      { label: 'Verheiratet (SK V)', value: 'sk5' },
+      { label: 'Weiß nicht', value: 'sk_unknown' },
+    ],
+  },
+  {
+    id: 'antrag_status',
+    bot: ['Hast du den Elterngeld-Antrag bereits gestellt?'],
+    type: 'select',
+    options: [
+      { label: 'Ja, schon eingereicht', value: 'ja' },
+      { label: 'Nein, noch nicht', value: 'nein' },
+      { label: 'Kurz davor', value: 'kurz_davor' },
+    ],
+  },
+  {
+    id: 'partnerschaftsbonus',
+    bot: ['Könntest du den Partnerschaftsbonus (8 Wochen extra) nutzen?'],
+    type: 'select',
+    options: [
+      { label: 'Ja, geplant', value: 'ja' },
+      { label: 'Nein', value: 'nein' },
+      { label: 'Noch unsicher', value: 'unsicher' },
+    ],
+  },
+  {
     id: 'phonegate',
-    bot: ['Perfekt! 🎉', 'Trag deine Kontaktdaten ein, dann zeige ich dir dein personalisiertes Ergebnis.'],
+    bot: ['Perfekt! 🎉', 'Dein personalisiertes Ergebnis wartet — trag deine Daten ein.'],
     type: 'phonegate',
   },
 ];
@@ -78,7 +115,9 @@ const FLOW = [
 function calcEG(a) {
   const b = a.einkommen_angestellt || a.einkommen_selbstaendig || 2000;
   const eg = Math.max(300, Math.min(Math.round((b * 0.6 * 0.67)), 1800));
-  return { eg: eg, opt: eg, diff: eg * 14 - eg * 12 };
+  const bonus = a.partnerschaftsbonus === 'ja' ? 200 : 0;
+  const opt = Math.min(eg + 300 + bonus, 1800);
+  return { eg: eg, opt: opt, diff: (opt - eg) * 14 };
 }
 
 function Bot({ children, delay }) {
@@ -130,6 +169,65 @@ function Btn({ label, onClick }) {
   );
 }
 
+function DateInput({ onSubmit, loading }) {
+  const [date, setDate] = useState('');
+  const [error, setError] = useState('');
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!date) {
+      setError('Bitte gib dein ET ein');
+      return;
+    }
+    const selectedDate = new Date(date);
+    const today = new Date();
+    if (selectedDate < today) {
+      setError('Das ET liegt in der Vergangenheit. Bist du bereits entbunden?');
+      return;
+    }
+    onSubmit(date);
+  };
+
+  return (
+    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+      <input
+        type="date"
+        value={date}
+        onChange={(e) => {
+          setDate(e.target.value);
+          setError('');
+        }}
+        style={{
+          border: error ? '2px solid #e74c3c' : '1.5px solid ' + C.border,
+          borderRadius: 10,
+          padding: '12px 14px',
+          fontSize: 14,
+          fontFamily: 'inherit',
+          outline: 'none',
+        }}
+      />
+      {error && <div style={{ fontSize: 12, color: '#e74c3c' }}>{error}</div>}
+      <button
+        type="submit"
+        disabled={loading}
+        style={{
+          background: 'linear-gradient(135deg,' + C.green + ',' + C.greenMid + ')',
+          color: '#fff',
+          border: 'none',
+          borderRadius: 10,
+          padding: '12px 20px',
+          fontSize: 14,
+          fontWeight: 700,
+          cursor: loading ? 'not-allowed' : 'pointer',
+          fontFamily: 'inherit',
+        }}
+      >
+        {loading ? 'Wird verarbeitet...' : 'Weiter →'}
+      </button>
+    </form>
+  );
+}
+
 function PhoneGate({ onSubmit, loading }) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -173,8 +271,8 @@ function PhoneGate({ onSubmit, loading }) {
         </h3>
         <p style={{ fontSize: 13, color: C.textMed, margin: 0 }}>
           {step === 1 
-            ? 'Kostenlose, persönliche Beratung – keine versteckten Gebühren'
-            : 'Alina berät dich zur optimalen Lösung für deine Situation'
+            ? 'Kostenlos & unverbindlich'
+            : 'Alina berät dich zur optimalen Lösung'
           }
         </p>
       </div>
@@ -225,7 +323,7 @@ function PhoneGate({ onSubmit, loading }) {
               fontFamily: 'inherit'
             }}
           >
-            {loading ? 'Wird verarbeitet...' : 'Weiter zu Telefon →'}
+            {loading ? 'Wird verarbeitet...' : 'Weiter zum Ergebnis →'}
           </button>
         </form>
       )}
@@ -284,44 +382,11 @@ function PhoneGate({ onSubmit, loading }) {
 
       {/* Trust Badges */}
       <div style={{ marginTop: 18, paddingTop: 16, borderTop: '1px solid ' + C.borderLight, fontSize: 12, color: C.textLight, textAlign: 'center', lineHeight: 1.6 }}>
-        <div style={{ marginBottom: 0 }}>
+        <div>
           ✅ <strong>Zertifiziert</strong> — Wirtschaftswissenschaftlerin<br/>
           🔒 <strong>DSGVO-konform</strong> — Deine Daten sind sicher
         </div>
       </div>
-    </div>
-  );
-}
-
-function CallTimeGate({ onSubmit, loading }) {
-  const [time, setTime] = useState('');
-
-  const submit = (e) => {
-    e.preventDefault();
-    if (time) {
-      onSubmit(time);
-    }
-  };
-
-  return (
-    <div style={{ background: '#fff', borderRadius: 14, border: '1.5px solid ' + C.green, padding: 24, margin: '8px 0' }}>
-      <div style={{ textAlign: 'center', marginBottom: 16 }}>
-        <div style={{ fontSize: 32, marginBottom: 8 }}>⏰</div>
-        <h3 style={{ fontFamily: "'Playfair Display',serif", fontSize: 18, fontWeight: 700, color: C.forest, margin: '0 0 6px' }}>Wann passt es dir?</h3>
-        <p style={{ fontSize: 13.5, color: C.textMed }}>Alina ruft dich dann in diesem Zeitfenster an.</p>
-      </div>
-      <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-        <select value={time} onChange={(e) => setTime(e.target.value)} style={{ border: '1.5px solid ' + C.border, borderRadius: 10, padding: '11px 14px', fontSize: 14, fontFamily: 'inherit', outline: 'none' }}>
-          <option value="">Zeitfenster wählen...</option>
-          <option value="09-12">09:00 - 12:00 Uhr</option>
-          <option value="12-15">12:00 - 15:00 Uhr</option>
-          <option value="15-18">15:00 - 18:00 Uhr</option>
-          <option value="18-20">18:00 - 20:00 Uhr</option>
-        </select>
-        <button type="submit" disabled={loading} style={{ background: 'linear-gradient(135deg,' + C.green + ',' + C.greenMid + ')', color: '#fff', border: 'none', borderRadius: 10, padding: '13px 20px', fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
-          {loading ? 'Wird verarbeitet...' : 'Zeit bestätigen & fertig ✓'}
-        </button>
-      </form>
     </div>
   );
 }
@@ -350,13 +415,13 @@ function Result({ result, arbeitsmodell, geschwister }) {
 
       {savings > 0 && (
         <div style={{ background: '#fff3cd', borderLeft: '4px solid #ff9800', padding: 14, marginBottom: 14, fontSize: 14, borderRadius: 8 }}>
-          <div style={{ fontWeight: 700, color: '#cc7700', marginBottom: 4 }}>💰 Das sind {savings}€ mehr pro Jahr!</div>
+          <div style={{ fontWeight: 700, color: '#cc7700', marginBottom: 4 }}>💰 Das sind {savings.toLocaleString('de-DE')}€ mehr pro Jahr!</div>
         </div>
       )}
 
       {geschwister === 'ja' && (
         <div style={{ background: '#e8f5e9', borderLeft: '3px solid #4caf50', padding: 12, marginBottom: 12, fontSize: 13 }}>
-          <strong>👶 Geschwisterbonus:</strong> Nächstes Jahr gibt es einen zusätzlichen Zuschlag — Alina rechnet das mit rein.
+          <strong>👶 Geschwisterbonus:</strong> Nächstes Jahr gibt es einen zusätzlichen Zuschlag.
         </div>
       )}
     </div>
@@ -385,11 +450,12 @@ export default function Home() {
   useEffect(() => {
     if (!cur) return;
     const nm = [];
-    for (let i = 0; i < cur.bot.length; i++) {
-      nm.push({ from: 'bot', text: cur.bot[i], delay: i * 600 + 200, id: step + '-b-' + i });
+    const botText = Array.isArray(cur.bot) ? cur.bot : [cur.bot];
+    for (let i = 0; i < botText.length; i++) {
+      nm.push({ from: 'bot', text: botText[i], delay: i * 600 + 200, id: step + '-b-' + i });
     }
     setMsgs((p) => p.concat(nm));
-    setTimeout(() => setShowOpts(true), cur.bot.length * 600 + 400);
+    setTimeout(() => setShowOpts(true), botText.length * 600 + 400);
   }, [step]);
 
   useEffect(() => {
@@ -404,11 +470,7 @@ export default function Home() {
 
     if (cur.id === 'arbeitsmodell') {
       setAnswers({ ...answers, [cur.id]: value });
-      if (value === 'angestellt') {
-        nextStep = FLOW.findIndex((f) => f.id === 'einkommen_angestellt');
-      } else {
-        nextStep = FLOW.findIndex((f) => f.id === 'einkommen_selbstaendig');
-      }
+      nextStep = FLOW.findIndex((f) => f.id === (value === 'angestellt' ? 'einkommen_angestellt' : 'einkommen_selbstaendig'));
     } else if (cur.id === 'einkommen_angestellt' || cur.id === 'einkommen_selbstaendig') {
       setAnswers({ ...answers, [cur.id]: value });
       nextStep = FLOW.findIndex((f) => f.id === 'geschwister');
@@ -417,6 +479,13 @@ export default function Home() {
     }
 
     setTimeout(() => setStep(nextStep), 300);
+  };
+
+  const onDate = (date) => {
+    const displayDate = new Date(date).toLocaleDateString('de-DE');
+    setAnswers({ ...answers, et: date });
+    setMsgs((p) => p.concat([{ from: 'user', text: displayDate, id: 'date-u' }]));
+    setTimeout(() => setStep(2), 300);
   };
 
   const onPhone = (firstName, email, phone) => {
@@ -431,11 +500,10 @@ export default function Home() {
       setShowOpts(false);
       setMsgs((p) => p.concat([{ from: 'bot', text: firstName + ', hier ist dein personalisiertes Ergebnis:', delay: 300, id: 'res-b' }]));
       setTimeout(() => setShowRes(true), 800);
-      setTimeout(() => setShowCallTime(true), 1500);
     }, 600);
   };
 
-  const onCallTime = (time) => {
+  const onComplete = () => {
     setSubmitting(true);
     const r = calcEG(answers);
 
@@ -447,25 +515,24 @@ export default function Home() {
         name: uName,
         email: userEmail,
         phone: userPhone,
-        callTime: time,
+        et: answers.et,
         arbeitsmodell: answers.arbeitsmodell,
         einkommen: answers.einkommen_angestellt || answers.einkommen_selbstaendig || '',
         geschwister: answers.geschwister || '',
+        steuerklasse: answers.steuerklasse || '',
+        antrag_status: answers.antrag_status || '',
+        partnerschaftsbonus: answers.partnerschaftsbonus || '',
         elterngeld_ohne: r.eg,
         elterngeld_mit: r.opt,
         elterngeld_diff: r.diff,
-        price: answers.arbeitsmodell === 'angestellt' ? 297 : 397,
       }),
     }).catch(console.log);
 
-    setMsgs((p) => p.concat([{ from: 'user', text: 'Zeitfenster: ' + time, id: 'time-u' }]));
-
     setTimeout(() => {
       setSubmitting(false);
-      setShowCallTime(false);
       setCompleted(true);
-      setMsgs((p) => p.concat([{ from: 'bot', text: 'Perfekt! 🎉 Alina schaut sich deine Unterlagen an und ruft dich im Zeitfenster an. Wir haben deine E-Mail notiert — dort schicken wir dir auch noch alle Details. Bis dann!', delay: 300, id: 'complete-b' }]));
-    }, 600);
+      setMsgs((p) => p.concat([{ from: 'bot', text: 'Perfekt! 🎉 Alina schaut sich deine Unterlagen an und ruft dich in den nächsten 2 Werktagen an. Alle Details gehen dir per E-Mail zu. Bis dann!', delay: 300, id: 'complete-b' }]));
+    }, 1000);
   };
 
   return (
@@ -476,9 +543,6 @@ export default function Home() {
         <div style={{ maxWidth: 720, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <img src={LOGO} alt="Zwergengruppe" style={{ height: 28 }} />
-            <div>
-              <div style={{ fontFamily: "'Playfair Display',serif", fontWeight: 700, fontSize: 15, color: C.forest }}>Zwergengruppe</div>
-            </div>
           </div>
         </div>
       </nav>
@@ -487,7 +551,7 @@ export default function Home() {
         <h1 style={{ fontFamily: "'Playfair Display',serif", fontSize: 'clamp(22px,5vw,36px)', fontWeight: 700, color: C.forest }}>
           Verschenkst du <span style={{ color: C.accent }}>tausende Euro</span> Elterngeld?
         </h1>
-        <p style={{ fontSize: 14, color: C.textMed, marginTop: 8 }}>Beantworte 3 kurze Fragen und erfahre sofort, wie viel dir zusteht.</p>
+        <p style={{ fontSize: 14, color: C.textMed, marginTop: 8 }}>7 Fragen in 60 Sekunden – dann weißt du, wie viel dir zusteht.</p>
       </section>
 
       {!started ? (
@@ -495,7 +559,7 @@ export default function Home() {
           <div style={{ background: '#fff', borderRadius: 16, border: '1px solid ' + C.border, padding: '20px 24px', textAlign: 'center' }}>
             <img src={ALINA_FOTO} alt="Alina" style={{ width: 56, height: 56, borderRadius: '50%', objectFit: 'cover', objectPosition: 'center 30%', marginBottom: 8 }} />
             <h2 style={{ fontFamily: "'Playfair Display',serif", fontSize: 18, fontWeight: 700, color: C.forest }}>Elterngeld-Schnellcheck</h2>
-            <p style={{ fontSize: 13, color: C.textMed, margin: '8px 0 16px' }}>3 Fragen · 60 Sekunden · Sofort dein Ergebnis</p>
+            <p style={{ fontSize: 13, color: C.textMed, margin: '8px 0 16px' }}>7 Fragen · 60 Sekunden · Sofort dein Ergebnis</p>
             <button
               onClick={() => setStarted(true)}
               style={{ background: 'linear-gradient(135deg,' + C.green + ',' + C.greenMid + ')', color: '#fff', border: 'none', borderRadius: 12, padding: '14px 32px', fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}
@@ -509,11 +573,32 @@ export default function Home() {
           <div style={{ background: '#fff', borderRadius: 18, border: '1px solid ' + C.border, overflow: 'hidden' }}>
             <div ref={chatRef} style={{ padding: '20px 18px', overflowY: 'auto', maxHeight: '58vh', display: 'flex', flexDirection: 'column', gap: 8 }}>
               {msgs.map((m) => (m.from === 'bot' ? <Bot key={m.id} delay={m.delay}>{m.text}</Bot> : <User key={m.id} text={m.text} />))}
+              {showOpts && cur?.id === 'et' && <DateInput onSubmit={onDate} loading={submitting} />}
               {showOpts && cur?.type === 'phonegate' && !gated && <PhoneGate onSubmit={onPhone} loading={submitting} />}
               {showRes && result && <Result result={result} answers={answers} arbeitsmodell={answers.arbeitsmodell} geschwister={answers.geschwister} />}
-              {showCallTime && !completed && <CallTimeGate onSubmit={onCallTime} loading={submitting} />}
+              {gated && !completed && (
+                <div style={{ marginTop: 16, textAlign: 'center' }}>
+                  <button
+                    onClick={onComplete}
+                    disabled={submitting}
+                    style={{
+                      background: C.green,
+                      color: '#fff',
+                      border: 'none',
+                      borderRadius: 10,
+                      padding: '12px 24px',
+                      fontSize: 14,
+                      fontWeight: 700,
+                      cursor: submitting ? 'not-allowed' : 'pointer',
+                      fontFamily: 'inherit'
+                    }}
+                  >
+                    {submitting ? 'Wird gesendet...' : 'Beratungstermin buchen'}
+                  </button>
+                </div>
+              )}
             </div>
-            {showOpts && cur && cur.type !== 'phonegate' && !gated && (
+            {showOpts && cur && cur.id !== 'et' && cur.type !== 'phonegate' && !gated && (
               <div style={{ borderTop: '1px solid ' + C.border, padding: '14px 18px', background: C.greenFaint }}>
                 {cur.type === 'start' && <Btn label="Los geht's! 🚀" onClick={() => answer('Los geht\'s!', true)} />}
                 {cur.type === 'select' && <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>{cur.options.map((o) => <Btn key={o.value} label={o.label} onClick={() => answer(o.label, o.value)} />)}</div>}
@@ -569,3 +654,4 @@ export default function Home() {
     </div>
   );
 }
+
