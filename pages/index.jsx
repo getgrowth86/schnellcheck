@@ -31,6 +31,16 @@ const FLOW = [
     type: 'date',
   },
   {
+    id: 'urgency_question',
+    bot: ['Das ist wichtig: Hast du dich schon mit dem Elterngeldantrag auseinandergesetzt?'],
+    type: 'select',
+    options: [
+      { label: 'Ja, ich kenne mich aus', value: 'ja' },
+      { label: 'Nein, noch nicht', value: 'nein' },
+      { label: 'Nur grob', value: 'grob' },
+    ],
+  },
+  {
     id: 'arbeitsmodell',
     bot: ['Arbeitest du angestellt oder bist du selbständig?'],
     type: 'select',
@@ -83,6 +93,26 @@ const FLOW = [
       { label: 'Verheiratet (SK IV)', value: 'sk4' },
       { label: 'Verheiratet (SK V)', value: 'sk5' },
       { label: 'Weiß nicht', value: 'sk_unknown' },
+    ],
+  },
+  {
+    id: 'problem_question',
+    bot: ['Was ist für dich das größte Problem beim Elterngeld?'],
+    type: 'select',
+    options: [
+      { label: 'Nicht wissen, wie viel mir zusteht', value: 'wieviel' },
+      { label: 'Angst vor Fehler im Antrag', value: 'fehler' },
+      { label: 'Komplexe Situation (SK, Bonus, etc.)', value: 'komplex' },
+    ],
+  },
+  {
+    id: 'partner_question',
+    bot: ['Sollen wir im Gespräch auch deinen Partner/deine Partnerin durchrechnen?'],
+    type: 'select',
+    options: [
+      { label: 'Nur meine Situation', value: 'nur_ich' },
+      { label: 'Auch meinen Partner einberechnen', value: 'mit_partner' },
+      { label: 'Weiß nicht', value: 'unsicher' },
     ],
   },
   {
@@ -520,18 +550,44 @@ export default function Home() {
     if (chatRef.current) chatRef.current.scrollTop = chatRef.current.scrollHeight;
   }, [msgs, showOpts, resultShown, wantHelp, phoneGated]);
 
+  const onDateSubmit = (date) => {
+    const displayDate = new Date(date).toLocaleDateString('de-DE');
+    setMsgs((p) => p.concat([{ from: 'user', text: displayDate, id: 'date-u' }]));
+    answer(displayDate, date);
+  };
+
   const answer = (display, value) => {
     setShowOpts(false);
     setMsgs((p) => p.concat([{ from: 'user', text: display, id: step + '-u' }]));
 
     let nextStep = step + 1;
 
-    if (cur.id === 'arbeitsmodell') {
+    // Conditional Logic für ET-Frage
+    if (cur.id === 'et') {
+      const etDate = new Date(value);
+      const today = new Date();
+      const monthsLeft = (etDate - today) / (1000 * 60 * 60 * 24 * 30);
+      
+      setAnswers({ ...answers, et: value, months_until_et: Math.round(monthsLeft) });
+      
+      // Wenn ET < 6 Monate: zeige Urgency-Frage
+      if (monthsLeft < 6) {
+        nextStep = FLOW.findIndex((f) => f.id === 'urgency_question');
+      } else {
+        // Sonst überspringe zu Arbeitsmodell
+        nextStep = FLOW.findIndex((f) => f.id === 'arbeitsmodell');
+      }
+    } else if (cur.id === 'arbeitsmodell') {
       setAnswers({ ...answers, [cur.id]: value });
       nextStep = FLOW.findIndex((f) => f.id === (value === 'angestellt' ? 'einkommen_angestellt' : 'einkommen_selbstaendig'));
     } else if (cur.id === 'einkommen_angestellt' || cur.id === 'einkommen_selbstaendig') {
       setAnswers({ ...answers, [cur.id]: value });
       nextStep = FLOW.findIndex((f) => f.id === 'geschwister');
+    } else if (cur.id === 'partnerschaftsbonus') {
+      // Nach letzter Frage: Submit!
+      setAnswers({ ...answers, [cur.id]: value });
+      setTimeout(() => onFinalSubmit(), 300);
+      return;
     } else {
       setAnswers({ ...answers, [cur.id]: value });
     }
@@ -569,6 +625,15 @@ export default function Home() {
 
   const onPhoneAndTime = (phone, time) => {
     setUserPhone(phone);
+    setAnswers((a) => ({ ...a, call_time: time }));
+    setMsgs((p) => p.concat([{ from: 'user', text: time, id: 'time-u' }]));
+    
+    // Gehe zu problem_question
+    const nextStep = FLOW.findIndex((f) => f.id === 'problem_question');
+    setTimeout(() => setStep(nextStep), 300);
+  };
+
+  const onFinalSubmit = () => {
     setSubmitting(true);
     const r = calcEG(answers);
 
@@ -579,13 +644,16 @@ export default function Home() {
         timestamp: new Date().toISOString(),
         name: uName,
         email: userEmail,
-        phone: phone,
-        callTime: time,
+        phone: userPhone,
+        callTime: answers.call_time || '',
         et: answers.et,
         arbeitsmodell: answers.arbeitsmodell,
         einkommen: answers.einkommen_angestellt || answers.einkommen_selbstaendig || '',
         geschwister: answers.geschwister || '',
         steuerklasse: answers.steuerklasse || '',
+        urgency_answer: answers.urgency_question || '',
+        problem: answers.problem_question || '',
+        partner: answers.partner_question || '',
         antrag_status: answers.antrag_status || '',
         partnerschaftsbonus: answers.partnerschaftsbonus || '',
         elterngeld_ohne: r.eg,
@@ -594,13 +662,11 @@ export default function Home() {
       }),
     }).catch(console.log);
 
-    setMsgs((p) => p.concat([{ from: 'user', text: time, id: 'time-u' }]));
-
     setTimeout(() => {
       setSubmitting(false);
       setCompleted(true);
       setMsgs((p) => p.concat([{ from: 'bot', text: 'Perfekt! 🎉 Alina schaut sich deine Unterlagen an und ruft dich in den nächsten 2 Werktagen an. Alle Details gehen dir per E-Mail zu. Bis dann!', delay: 300, id: 'complete-b' }]));
-    }, 1000);
+    }, 600);
   };
 
   return (
@@ -628,7 +694,7 @@ export default function Home() {
             {msgs.map((m) => (m.from === 'bot' ? <Bot key={m.id} delay={m.delay}>{m.text}</Bot> : <User key={m.id} text={m.text} />))}
             
             {/* DateInput für ET-Frage */}
-            {showOpts && cur?.id === 'et' && <DateInput onSubmit={(date) => { setAnswers({ ...answers, et: date }); setMsgs((p) => p.concat([{ from: 'user', text: new Date(date).toLocaleDateString('de-DE'), id: 'date-u' }])); setTimeout(() => setStep(2), 300); }} loading={submitting} />}
+            {showOpts && cur?.id === 'et' && <DateInput onSubmit={onDateSubmit} loading={submitting} />}
             
             {/* EmailGate nach allen 7 Fragen */}
             {step > FLOW.length - 1 && !emailGated && <EmailGate onSubmit={onEmail} loading={submitting} />}
@@ -637,10 +703,10 @@ export default function Home() {
             {resultShown && result && !wantHelp && (
               <>
                 <Result result={result} name={uName} arbeitsmodell={answers.arbeitsmodell} geschwister={answers.geschwister} />
-                <div style={{ marginTop: 8, display: 'flex', gap: 8, fontSize: 12, fontWeight: 600, color: C.textMed }}>
-                  Möchtest du erfahren, wie wir dir helfen können?
+                <div style={{ marginTop: 16, fontSize: 13.5, fontWeight: 600, color: C.text, lineHeight: 1.5 }}>
+                  Du siehst jetzt, wo +{result.opt - result.eg}€ Potenzial liegt. Sollen wir gemeinsam schauen, wie wir dir dabei helfen können?
                 </div>
-                <div style={{ display: 'flex', gap: 8 }}>
+                <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
                   <button onClick={() => handleHelpDecision('yes')} style={{ flex: 1, background: C.green, color: '#fff', border: 'none', borderRadius: 10, padding: '10px', fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>Ja</button>
                   <button onClick={() => handleHelpDecision('no')} style={{ flex: 1, background: C.borderLight, color: C.text, border: 'none', borderRadius: 10, padding: '10px', fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>Nein</button>
                 </div>
