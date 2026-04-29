@@ -504,7 +504,7 @@ export default function Home() {
 
   useEffect(() => {
     if (chatRef.current) chatRef.current.scrollTop = chatRef.current.scrollHeight;
-  }, [msgs, showOpts, resultShown, wantHelp]);
+  }, [msgs, showOpts, resultShown, wantHelp, emailGated]);
 
   const onDateSubmit = (date) => {
     const displayDate = new Date(date).toLocaleDateString('de-DE');
