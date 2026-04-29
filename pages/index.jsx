@@ -554,6 +554,7 @@ export default function Home() {
 
     fetch('https://hooks.zapier.com/hooks/catch/26304169/uvmn326/', {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         timestamp: new Date().toISOString(),
         name: uName,
@@ -611,6 +612,11 @@ export default function Home() {
             >
               Schnellcheck starten →
             </button>
+            <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid ' + C.borderLight, fontSize: 12, color: C.textLight, textAlign: 'center', display: 'flex', justifyContent: 'center', gap: 16, flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>🔒 SSL-verschlüsselt</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>✓ DSGVO-konform</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>⭐ 500+ Familien</div>
+            </div>
           </div>
         </section>
       ) : (
