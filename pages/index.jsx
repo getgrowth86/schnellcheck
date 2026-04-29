@@ -600,7 +600,9 @@ export default function Home() {
     setTimeout(() => {
       setSubmitting(false);
       setCompleted(true);
-      setMsgs((p) => p.concat([{ from: 'bot', text: 'Vielen Dank! Jemand aus dem Team wird sich entsprechend telefonisch bei dir melden. 💚', delay: 300, id: 'complete-b' }]));
+      const monthlyDiff = r.opt - r.eg;
+      const yearlyDiff = monthlyDiff * 12;
+      setMsgs((p) => p.concat([{ from: 'bot', text: `Vielen Dank! Jemand aus dem Team wird sich telefonisch bei dir melden und dir zeigen, wie du die +${monthlyDiff}€/Monat (+${yearlyDiff.toLocaleString('de-DE')}€/Jahr) rausholst. 💚`, delay: 300, id: 'complete-b' }]));
     }, 600);
   };
 
