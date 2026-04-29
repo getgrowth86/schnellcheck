@@ -554,7 +554,6 @@ export default function Home() {
 
     fetch('https://hooks.zapier.com/hooks/catch/26304169/uvmn326/', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         timestamp: new Date().toISOString(),
         name: uName,
