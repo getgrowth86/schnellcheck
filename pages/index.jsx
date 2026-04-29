@@ -471,6 +471,40 @@ function Result({ result, name }) {
   );
 }
 
+function FAQ({ q, a }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div style={{ borderBottom: '1px solid ' + C.borderLight }}>
+      <button
+        onClick={() => setOpen(!open)}
+        style={{
+          width: '100%',
+          padding: '16px 20px',
+          background: 'transparent',
+          border: 'none',
+          textAlign: 'left',
+          fontSize: 14,
+          fontWeight: 600,
+          color: C.text,
+          cursor: 'pointer',
+          fontFamily: 'inherit',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}
+      >
+        <span>{q}</span>
+        <span style={{ fontSize: 18, color: C.green, marginLeft: 12 }}>{open ? '−' : '+'}</span>
+      </button>
+      {open && (
+        <div style={{ padding: '0 20px 16px', fontSize: 13.5, color: C.textMed, lineHeight: 1.6 }}>
+          {a}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function Home() {
   const [step, setStep] = useState(0);
   const [afterStep, setAfterStep] = useState(0);
@@ -632,28 +666,64 @@ export default function Home() {
       </nav>
 
       <section style={{ maxWidth: 720, margin: '0 auto', padding: '20px 20px 12px', textAlign: 'center' }}>
+        <button
+          onClick={() => { setStarted(true); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+          style={{
+            background: '#fee2e2',
+            color: '#b91c1c',
+            border: '1px solid #fca5a5',
+            borderRadius: 999,
+            padding: '6px 14px',
+            fontSize: 12.5,
+            fontWeight: 600,
+            cursor: 'pointer',
+            fontFamily: 'inherit',
+            marginBottom: 16,
+            boxShadow: '0 2px 4px rgba(220,38,38,0.1)',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 6,
+          }}
+        >
+          🔴 Steuerklassenwechsel? Nur vor der Geburt möglich!
+        </button>
         <h1 style={{ fontFamily: "'Playfair Display',serif", fontSize: 'clamp(22px,5vw,36px)', fontWeight: 700, color: C.forest }}>
-          Verschenkst du <span style={{ color: C.accent }}>tausende Euro</span> Elterngeld?
+          Verschenkst du <span style={{ color: C.accent, fontStyle: 'italic' }}>tausende Euro</span> Elterngeld?
         </h1>
-        <p style={{ fontSize: 14, color: C.textMed, marginTop: 8 }}>7 Fragen in 60 Sekunden – dann weißt du, wie viel dir zusteht.</p>
+        <p style={{ fontSize: 14, color: C.textMed, marginTop: 8, maxWidth: 540, margin: '8px auto 0' }}>
+          Beantworte 5 kurze Fragen und erfahre sofort, wie viel Elterngeld dir zusteht und wie du mehr herausholen kannst.
+        </p>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 32, marginTop: 20, flexWrap: 'wrap' }}>
+          <div>
+            <div style={{ fontSize: 22, fontWeight: 700, color: C.forest, fontFamily: "'Playfair Display',serif" }}>100+</div>
+            <div style={{ fontSize: 11, color: C.textLight }}>Familien beraten</div>
+          </div>
+          <div>
+            <div style={{ fontSize: 22, fontWeight: 700, color: C.forest, fontFamily: "'Playfair Display',serif" }}>Ø 4.200 €</div>
+            <div style={{ fontSize: 11, color: C.textLight }}>mehr Elterngeld</div>
+          </div>
+          <div>
+            <div style={{ fontSize: 22, fontWeight: 700, color: C.forest, fontFamily: "'Playfair Display',serif" }}>0</div>
+            <div style={{ fontSize: 11, color: C.textLight }}>Antrags-Ablehnungen</div>
+          </div>
+        </div>
       </section>
 
       {!started ? (
         <section style={{ maxWidth: 720, margin: '0 auto', padding: '0 20px 16px' }}>
           <div style={{ background: '#fff', borderRadius: 16, border: '1px solid ' + C.border, padding: '20px 24px', textAlign: 'center' }}>
             <img src={ALINA_FOTO} alt="Alina" style={{ width: 56, height: 56, borderRadius: '50%', objectFit: 'cover', objectPosition: 'center 30%', marginBottom: 8 }} />
-            <h2 style={{ fontFamily: "'Playfair Display',serif", fontSize: 18, fontWeight: 700, color: C.forest }}>Elterngeld-Schnellcheck</h2>
-            <p style={{ fontSize: 13, color: C.textMed, margin: '8px 0 16px' }}>7 Fragen · 60 Sekunden · Sofort dein Ergebnis</p>
+            <h2 style={{ fontFamily: "'Playfair Display',serif", fontSize: 18, fontWeight: 700, color: C.forest }}>Kostenloser Elterngeld-Schnellcheck</h2>
+            <p style={{ fontSize: 13, color: C.textMed, margin: '8px 0 16px' }}>5 einfache Fragen · Unter 2 Minuten · Sofort dein Ergebnis</p>
             <button
               onClick={() => setStarted(true)}
               style={{ background: 'linear-gradient(135deg,' + C.green + ',' + C.greenMid + ')', color: '#fff', border: 'none', borderRadius: 12, padding: '14px 32px', fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}
             >
-              Schnellcheck starten →
+              Jetzt Schnellcheck starten →
             </button>
             <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid ' + C.borderLight, fontSize: 12, color: C.textLight, textAlign: 'center', display: 'flex', justifyContent: 'center', gap: 16, flexWrap: 'wrap' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>🔒 SSL-verschlüsselt</div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>✓ DSGVO-konform</div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>⭐ 500+ Familien</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>✓ Keine Registrierung</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>✓ Kein Spam</div>
             </div>
           </div>
         </section>
@@ -699,19 +769,23 @@ export default function Home() {
         </section>
       )}
 
-      <section style={{ maxWidth: 720, margin: '0 auto', padding: '36px 20px' }}>
-        <h2 style={{ fontFamily: "'Playfair Display',serif", fontSize: 22, fontWeight: 700, color: C.forest, textAlign: 'center', marginBottom: 24 }}>Das haben andere Familien erreicht</h2>
+      <section style={{ maxWidth: 720, margin: '0 auto', padding: '36px 20px 12px' }}>
+        <h2 style={{ fontFamily: "'Playfair Display',serif", fontSize: 22, fontWeight: 700, color: C.forest, textAlign: 'center', marginBottom: 6 }}>Das haben andere Familien erreicht</h2>
+        <p style={{ fontSize: 13, color: C.textLight, textAlign: 'center', marginBottom: 24 }}>Echte Ergebnisse aus unseren Beratungen</p>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(260px,1fr))', gap: 16 }}>
           {[
-            { name: 'Melanie & Tom', sit: 'Steuerklasse V → III', v: '640€', n: '1.180€', d: '+6.480€', q: 'Ohne Alina hätten wir über 6.000€ verschenkt!' },
-            { name: 'Sarah', sit: 'Selbstständig', v: '890€', n: '1.420€', d: '+9.460€', q: 'Die Beratung hat sich 30x bezahlt gemacht.' },
-            { name: 'Lisa & Jan', sit: 'Partnerschaftsbonus', v: '1.100€', n: '1.100€+4M', d: '+4.400€', q: 'Alina hat alles durchgerechnet.' },
-            { name: 'Julia & Marco', sit: 'Selbstständig nebenberuflich', v: '720€', n: '1.240€', d: '+7.840€', q: 'Alina hat alles so erklärt, dass wir keine Sorgen mehr hatten.' },
+            { name: 'Melanie & Tom', sit: 'Steuerklasse V → III', v: '640€/Mon.', n: '1.180€/Mon.', d: '+6.480€ über den Bezugszeitraum', q: 'Ohne Alina hätten wir über 6.000€ verschenkt!' },
+            { name: 'Sarah', sit: 'Selbstständig, alleinerziehend', v: '890€/Mon.', n: '1.420€/Mon.', d: '+9.460€ über den Bezugszeitraum', q: 'Die Beratung hat sich 30-fach bezahlt gemacht.' },
+            { name: 'Lisa & Jan', sit: 'Partnerschaftsbonus genutzt', v: '1.100€/Mon.', n: '1.100€ + 4 Bonusmonate', d: '+4.400€ über den Bezugszeitraum', q: 'Alina hat alles durchgerechnet und geplant.' },
+            { name: 'Julia & Marco', sit: 'Nebenberuflich selbstständig', v: '720€/Mon.', n: '1.240€/Mon.', d: '+7.840€ über den Bezugszeitraum', q: 'Als nebenberuflich Selbstständige dachte ich, Elterngeld wird kompliziert. Alina hat alles so erklärt, dass wir keine Sorgen mehr machen mussten.' },
           ].map((c, i) => (
             <div key={i} style={{ background: '#fff', borderRadius: 14, border: '1px solid ' + C.border, padding: 20 }}>
-              <div>
-                <strong>{c.name}</strong>
-                <div style={{ fontSize: 12, color: C.textLight }}>{c.sit}</div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
+                <div>
+                  <strong>{c.name}</strong>
+                  <div style={{ fontSize: 12, color: C.textLight }}>{c.sit}</div>
+                </div>
+                <div style={{ color: '#fbbf24', fontSize: 14, letterSpacing: 1 }}>★★★★★</div>
               </div>
               <div style={{ display: 'flex', gap: 8, margin: '12px 0' }}>
                 <div style={{ flex: 1, background: C.borderLight, borderRadius: 8, padding: '8px', textAlign: 'center', fontSize: 13 }}>
@@ -723,19 +797,59 @@ export default function Home() {
                   {c.n}
                 </div>
               </div>
-              <div style={{ background: C.greenFaint, borderRadius: 8, padding: '6px', textAlign: 'center', fontSize: 12, color: C.green, fontWeight: 700, marginBottom: 8 }}>{c.d}</div>
+              <div style={{ background: C.greenFaint, borderRadius: 8, padding: '8px', textAlign: 'center', fontSize: 12, color: C.green, fontWeight: 700, marginBottom: 10 }}>{c.d}</div>
               <p style={{ fontSize: 13, color: C.textMed, fontStyle: 'italic' }}>"{c.q}"</p>
             </div>
           ))}
         </div>
       </section>
 
+      <section style={{ maxWidth: 720, margin: '0 auto', padding: '20px 20px 12px' }}>
+        <div style={{ background: '#fff', borderRadius: 16, border: '1px solid ' + C.border, padding: 28 }}>
+          <div style={{ display: 'flex', gap: 18, alignItems: 'flex-start', marginBottom: 16, flexWrap: 'wrap' }}>
+            <img src={ALINA_FOTO} alt="Alina" style={{ width: 90, height: 90, borderRadius: '50%', objectFit: 'cover', objectPosition: 'center 30%', flexShrink: 0 }} />
+            <div style={{ flex: 1, minWidth: 200 }}>
+              <h3 style={{ fontFamily: "'Playfair Display',serif", fontSize: 20, fontWeight: 700, color: C.forest }}>Alina Nußbaum</h3>
+              <p style={{ fontSize: 13, color: C.green, fontWeight: 600 }}>Elterngeld-Expertin · Zertifizierte Wirtschaftswissenschaftlerin · Gründerin Zwergengruppe</p>
+            </div>
+          </div>
+          <p style={{ fontSize: 13.5, color: C.textMed, lineHeight: 1.6, marginBottom: 16 }}>Ich bringe tiefes Steuer- und Finanzwissen mit. Ich optimiere nicht nur euren Antrag, sondern verstehe, wie Steuerklasse, Progressionsvorbehalt und eure gesamte Situation zusammenspielen. Das kann den Unterschied von tausenden Euro machen.</p>
+          <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', fontSize: 12, color: C.green, fontWeight: 600 }}>
+            <div>✓ 100+ Familien</div>
+            <div>✓ Steuer-Expertise</div>
+            <div>✓ Geld-zurück-Garantie</div>
+          </div>
+        </div>
+      </section>
+
       <section style={{ maxWidth: 720, margin: '0 auto', padding: '20px 20px 36px' }}>
-        <div style={{ background: '#fff', borderRadius: 16, border: '1px solid ' + C.border, padding: 28, textAlign: 'center' }}>
-          <img src={ALINA_FOTO} alt="Alina" style={{ width: 90, height: 90, borderRadius: '50%', objectFit: 'cover', objectPosition: 'center 30%', marginBottom: 12 }} />
-          <h3 style={{ fontFamily: "'Playfair Display',serif", fontSize: 18, fontWeight: 700, color: C.forest }}>Alina Nußbaum</h3>
-          <p style={{ fontSize: 13, color: C.green, fontWeight: 600, marginBottom: 10 }}>Elterngeld-Expertin · Wirtschaftswissenschaftlerin</p>
-          <p style={{ fontSize: 13.5, color: C.textMed, lineHeight: 1.6 }}>Ich bringe tiefes Steuer- und Finanzwissen mit. Ich optimiere nicht nur euren Antrag, sondern verstehe, wie Steuerklasse und eure gesamte Situation zusammenspielen.</p>
+        <h2 style={{ fontFamily: "'Playfair Display',serif", fontSize: 22, fontWeight: 700, color: C.forest, textAlign: 'center', marginBottom: 24 }}>Häufige Fragen</h2>
+        <div style={{ background: '#fff', borderRadius: 14, border: '1px solid ' + C.border, overflow: 'hidden' }}>
+          {[
+            { q: 'Ist der Schnellcheck wirklich kostenlos?', a: 'Ja, der Schnellcheck ist 100% kostenlos und unverbindlich. Du erhältst dein persönliches Ergebnis sofort.' },
+            { q: 'Was passiert mit meiner E-Mail?', a: 'Deine Daten werden DSGVO-konform behandelt. Wir nutzen sie ausschließlich, um dir dein Ergebnis und ggf. weiterführende Infos zukommen zu lassen.' },
+            { q: 'Wann sollte ich mich beraten lassen?', a: 'Am besten so früh wie möglich – idealerweise vor der Geburt. Manche Optimierungen (z.B. Steuerklassenwechsel) sind nur vor der Geburt möglich!' },
+            { q: 'Was unterscheidet euch von anderen?', a: 'Alina kombiniert Steuer- und Finanzwissen mit Elterngeld-Expertise. Wir betrachten deine gesamte Situation – nicht nur den Antrag.' },
+            { q: 'Was kostet die Beratung?', a: 'Das besprechen wir individuell im persönlichen Telefonat. In jedem Fall: Wir holen für dich mehr raus, als die Beratung kostet – sonst lohnt sie sich nicht.' },
+          ].map((f, i) => <FAQ key={i} q={f.q} a={f.a} />)}
+        </div>
+      </section>
+
+      <section style={{ maxWidth: 720, margin: '0 auto', padding: '20px 20px 36px' }}>
+        <div style={{ background: 'linear-gradient(135deg,' + C.forest + ',' + C.green + ')', borderRadius: 16, padding: 32, textAlign: 'center' }}>
+          <h2 style={{ fontFamily: "'Playfair Display',serif", fontSize: 22, fontWeight: 700, color: '#fff', marginBottom: 8 }}>Bereit, dein Elterngeld zu maximieren?</h2>
+          <p style={{ fontSize: 13.5, color: 'rgba(255,255,255,0.85)', marginBottom: 20, lineHeight: 1.5 }}>Die wichtigsten Entscheidungen fallen vor der Geburt. Danach ist es oft zu spät. Sichere dir jetzt dein kostenloses Beratungsgespräch mit Alina.</p>
+          <button
+            onClick={() => { setStarted(true); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+            style={{ background: '#fff', color: C.forest, border: 'none', borderRadius: 12, padding: '14px 28px', fontSize: 14.5, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}
+          >
+            Schnellcheck starten →
+          </button>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 18, marginTop: 18, fontSize: 12, color: 'rgba(255,255,255,0.85)', flexWrap: 'wrap' }}>
+            <div>15 Min. per Zoom</div>
+            <div>100% kostenlos</div>
+            <div>Unverbindlich</div>
+          </div>
         </div>
       </section>
 
