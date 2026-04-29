@@ -148,11 +148,33 @@ const AFTER_FLOW = [
 ];
 
 function calcEG(a) {
-  const b = a.einkommen_angestellt || a.einkommen_selbstaendig || 2000;
-  const eg = Math.max(300, Math.min(Math.round((b * 0.6 * 0.67)), 1800));
-  const bonus = a.partnerschaftsbonus === 'ja' ? 200 : 0;
-  const opt = Math.min(eg + 300 + bonus, 1800);
-  return { eg: eg, opt: opt, diff: (opt - eg) * 14 };
+  const isFreelancer = a.arbeitsmodell === 'selbstaendig';
+  const income = a.einkommen_angestellt || a.einkommen_selbstaendig || 2000;
+  
+  // OHNE Beratung: conservative estimate
+  let egBase = Math.max(300, Math.min(Math.round(income * 0.6 * 0.67), 1800));
+  
+  // MIT Beratung: optimiert
+  let opt = egBase;
+  
+  // Steuerklasse-Optimierung
+  if (a.steuerklasse === 'sk5') opt += 150;
+  if (a.steuerklasse === 'sk3') opt += 100;
+  
+  // Partnerschaftsbonus
+  if (a.partnerschaftsbonus === 'ja') opt += 200;
+  
+  // SELBSTSTÄNDIGE: großes Potenzial
+  if (isFreelancer) {
+    opt += 400; // Gewinnabgrenzung, Betriebsausgaben, Versicherungen, optimale Dokumentation
+  }
+  
+  // Geschwisterbonus
+  if (a.geschwister === 'ja') opt += 50;
+  
+  opt = Math.min(opt, 1800);
+  
+  return { eg: egBase, opt: opt, diff: (opt - egBase) * 14 };
 }
 
 function Bot({ children, delay }) {
