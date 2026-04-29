@@ -424,6 +424,7 @@ function EmailGate({ onSubmit, loading }) {
 
 function Result({ result, name }) {
   const savings = (result.opt - result.eg) * 12;
+  const hasDifference = (result.opt - result.eg) > 0;
 
   return (
     <div style={{ background: C.cream, borderRadius: 14, border: '1px solid ' + C.border, padding: 20, margin: '8px 0' }}>
@@ -431,26 +432,40 @@ function Result({ result, name }) {
         {name}, dein Ergebnis ist fertig:
       </h3>
 
-      <div style={{ marginBottom: 16 }}>
-        <div style={{ fontSize: 11, color: C.textLight, marginBottom: 6, fontWeight: 600 }}>OHNE INDIVIDUELLE BERATUNG:</div>
-        <div style={{ fontSize: 18, fontWeight: 700, color: C.text }}>{result.eg}€/Monat</div>
-      </div>
+      {hasDifference ? (
+        <>
+          <div style={{ marginBottom: 16 }}>
+            <div style={{ fontSize: 11, color: C.textLight, marginBottom: 6, fontWeight: 600 }}>OHNE INDIVIDUELLE BERATUNG:</div>
+            <div style={{ fontSize: 18, fontWeight: 700, color: C.text }}>{result.eg}€/Monat</div>
+          </div>
 
-      <div style={{ marginBottom: 18 }}>
-        <div style={{ fontSize: 11, color: C.green, marginBottom: 6, fontWeight: 600 }}>INKL. INDIVIDUELLE OPTIMIERUNG:</div>
-        <div style={{ fontSize: 18, fontWeight: 700, color: C.green }}>{result.opt}€/Monat</div>
-      </div>
+          <div style={{ marginBottom: 18 }}>
+            <div style={{ fontSize: 11, color: C.green, marginBottom: 6, fontWeight: 600 }}>INKL. INDIVIDUELLE OPTIMIERUNG:</div>
+            <div style={{ fontSize: 18, fontWeight: 700, color: C.green }}>{result.opt}€/Monat</div>
+          </div>
 
-      {(result.opt - result.eg) > 0 && (
-        <div style={{ background: C.greenFaint, borderRadius: 12, border: '1px solid ' + C.green, padding: 14, marginBottom: 14 }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: C.green, marginBottom: 6 }}>UNTERSCHIED:</div>
-          <div style={{ fontSize: 20, fontWeight: 700, color: C.green, marginBottom: 8 }}>+{(result.opt - result.eg)}€ / Monat</div>
-          <div style={{ fontSize: 12, fontWeight: 700, color: C.green }}>Jährlich: +{savings.toLocaleString('de-DE')}€</div>
-        </div>
+          <div style={{ background: C.greenFaint, borderRadius: 12, border: '1px solid ' + C.green, padding: 14, marginBottom: 14 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: C.green, marginBottom: 6 }}>UNTERSCHIED:</div>
+            <div style={{ fontSize: 20, fontWeight: 700, color: C.green, marginBottom: 8 }}>+{(result.opt - result.eg)}€ / Monat</div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: C.green }}>Jährlich: +{savings.toLocaleString('de-DE')}€</div>
+          </div>
+        </>
+      ) : (
+        <>
+          <div style={{ marginBottom: 18 }}>
+            <div style={{ fontSize: 11, color: C.green, marginBottom: 6, fontWeight: 600 }}>INKL. INDIVIDUELLE OPTIMIERUNG:</div>
+            <div style={{ fontSize: 18, fontWeight: 700, color: C.green }}>{result.opt}€/Monat</div>
+          </div>
+
+          <div style={{ background: C.greenFaint, borderRadius: 12, border: '1px solid ' + C.green, padding: 14, marginBottom: 14 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: C.green, marginBottom: 4 }}>Dir steht das Maximum zu!</div>
+            <div style={{ fontSize: 12, color: C.green, lineHeight: 1.4 }}>Alina optimiert deinen Antrag so, dass du die volle 1.800€ auch wirklich erhältst und keine Fehler entstehen.</div>
+          </div>
+        </>
       )}
 
       <div style={{ fontSize: 13, color: C.textMed, lineHeight: 1.5, fontStyle: 'italic' }}>
-        Das ist Geld, das dir ohne Beratung entgeht.
+        Das ist, worum es in unserem Telefonat geht.
       </div>
     </div>
   );
@@ -576,6 +591,7 @@ export default function Home() {
 
     fetch('https://hooks.zapier.com/hooks/catch/26304169/uvmn326/', {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         timestamp: new Date().toISOString(),
         name: uName,
