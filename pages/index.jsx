@@ -520,6 +520,7 @@ export default function Home() {
   const [uName, setUName] = useState('');
   const [userEmail, setUserEmail] = useState('');
   const [userPhone, setUserPhone] = useState('');
+  const [userTime, setUserTime] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const chatRef = useRef(null);
 
@@ -584,8 +585,12 @@ export default function Home() {
     setMsgs((p) => p.concat([{ from: 'user', text: display, id: 'after-' + afterStep + '-u' }]));
     setAnswers((a) => ({ ...a, [afterCur.id]: value }));
 
+    if (afterCur.id === 'time') {
+      setUserTime(value);
+    }
+
     if (afterStep === AFTER_FLOW.length - 1) {
-      setTimeout(() => onFinalSubmit(), 300);
+      setTimeout(() => onFinalSubmit(value), 300);
     } else {
       setTimeout(() => setAfterStep(afterStep + 1), 300);
     }
@@ -619,9 +624,10 @@ export default function Home() {
     }
   };
 
-  const onFinalSubmit = () => {
+  const onFinalSubmit = (timeValue) => {
     setSubmitting(true);
     const r = calcEG(answers);
+    const finalCallTime = timeValue || userTime || '';
 
     fetch('https://hooks.zapier.com/hooks/catch/26304169/uvmn326/', {
       method: 'POST',
@@ -630,7 +636,7 @@ export default function Home() {
         name: uName,
         email: userEmail,
         phone: userPhone,
-        callTime: answers.time || '',
+        callTime: finalCallTime,
         et: answers.et,
         arbeitsmodell: answers.arbeitsmodell,
         einkommen: answers.einkommen_angestellt || answers.einkommen_selbstaendig || '',
@@ -846,9 +852,9 @@ export default function Home() {
             Schnellcheck starten →
           </button>
           <div style={{ display: 'flex', justifyContent: 'center', gap: 18, marginTop: 18, fontSize: 12, color: 'rgba(255,255,255,0.85)', flexWrap: 'wrap' }}>
-            <div>15 Min. per Zoom</div>
-            <div>100% kostenlos</div>
-            <div>Unverbindlich</div>
+            <div>✓ 5 Fragen in 60 Sekunden</div>
+            <div>✓ 100% kostenlos</div>
+            <div>✓ Sofort dein Ergebnis</div>
           </div>
         </div>
       </section>
