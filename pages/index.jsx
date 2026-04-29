@@ -583,14 +583,16 @@ export default function Home() {
   const afterAnswer = (display, value) => {
     setShowOpts(false);
     setMsgs((p) => p.concat([{ from: 'user', text: display, id: 'after-' + afterStep + '-u' }]));
-    setAnswers((a) => ({ ...a, [afterCur.id]: value }));
+    
+    const updatedAnswers = { ...answers, [afterCur.id]: value };
+    setAnswers(updatedAnswers);
 
     if (afterCur.id === 'time') {
       setUserTime(value);
     }
 
     if (afterStep === AFTER_FLOW.length - 1) {
-      setTimeout(() => onFinalSubmit(value), 300);
+      setTimeout(() => onFinalSubmit(value, updatedAnswers), 300);
     } else {
       setTimeout(() => setAfterStep(afterStep + 1), 300);
     }
@@ -624,9 +626,10 @@ export default function Home() {
     }
   };
 
-  const onFinalSubmit = (timeValue) => {
+  const onFinalSubmit = (timeValue, finalAnswers) => {
     setSubmitting(true);
-    const r = calcEG(answers);
+    const a = finalAnswers || answers;
+    const r = calcEG(a);
     const finalCallTime = timeValue || userTime || '';
 
     fetch('https://hooks.zapier.com/hooks/catch/26304169/uvmn326/', {
@@ -637,15 +640,15 @@ export default function Home() {
         email: userEmail,
         phone: userPhone,
         callTime: finalCallTime,
-        et: answers.et,
-        arbeitsmodell: answers.arbeitsmodell,
-        einkommen: answers.einkommen_angestellt || answers.einkommen_selbstaendig || '',
-        geschwister: answers.geschwister || '',
-        steuerklasse: answers.steuerklasse || '',
-        antrag_status: answers.antrag_status || '',
-        partnerschaftsbonus: answers.partnerschaftsbonus || '',
-        problem: answers.problem_question || '',
-        helpPreference: answers.help_preference || '',
+        et: a.et,
+        arbeitsmodell: a.arbeitsmodell,
+        einkommen: a.einkommen_angestellt || a.einkommen_selbstaendig || '',
+        geschwister: a.geschwister || '',
+        steuerklasse: a.steuerklasse || '',
+        antrag_status: a.antrag_status || '',
+        partnerschaftsbonus: a.partnerschaftsbonus || '',
+        problem: a.problem_question || '',
+        helpPreference: a.help_preference || '',
         elterngeld_ohne: r.eg,
         elterngeld_mit: r.opt,
         elterngeld_diff: r.diff,
