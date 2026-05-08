@@ -732,7 +732,7 @@ export default function Home() {
           Wie viel Elterngeld steht dir wirklich zu?
         </h1>
         <p style={{ fontSize: 12.5, color: C.textMed, marginTop: 4 }}>
-          Beantworte 5 kurze Fragen — Alina zeigt dir dein Ergebnis sofort.
+          5 kurze Fragen — dein Ergebnis sofort.
         </p>
       </div>
 
