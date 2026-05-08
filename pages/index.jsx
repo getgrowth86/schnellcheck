@@ -107,45 +107,7 @@ const FLOW = [
   },
 ];
 
-const AFTER_FLOW = [
-  {
-    id: 'problem_question',
-    bot: ['Was ist für dich das größte Problem beim Elterngeld?'],
-    type: 'select',
-    options: [
-      { label: 'Nicht wissen, wie viel mir zusteht', value: 'wieviel' },
-      { label: 'Angst vor Fehler im Antrag', value: 'fehler' },
-      { label: 'Komplexe Situation (SK, Bonus, etc.)', value: 'komplex' },
-    ],
-  },
-  {
-    id: 'help_preference',
-    bot: ['Wie können wir dir am besten helfen?'],
-    type: 'select',
-    options: [
-      { label: 'Schritt-für-Schritt erklären', value: 'erklaeren' },
-      { label: 'Alles für mich durchrechnen', value: 'durchrechnen' },
-      { label: 'Den Antrag komplett ausfüllen', value: 'ausfuellen' },
-      { label: 'Alles selbst machen, ich vertraue euch', value: 'vertrauen' },
-    ],
-  },
-  {
-    id: 'phone',
-    bot: ['Wo erreichen wir dich am besten?'],
-    type: 'phone',
-  },
-  {
-    id: 'time',
-    bot: ['Wann erreichen wir dich am besten?'],
-    type: 'select',
-    options: [
-      { label: '09:00 - 12:00 Uhr', value: '09-12' },
-      { label: '12:00 - 15:00 Uhr', value: '12-15' },
-      { label: '15:00 - 18:00 Uhr', value: '15-18' },
-      { label: '18:00 - 20:00 Uhr', value: '18-20' },
-    ],
-  },
-];
+const THRIVECART_URL = 'https://zwergengruppe.thrivecart.com/elterngeldfix/';
 
 function calcEG(a) {
   const isFreelancer = a.arbeitsmodell === 'selbstaendig';
@@ -489,6 +451,37 @@ function Result({ result, name }) {
   );
 }
 
+function PurchaseCard({ result }) {
+  const diff = result.opt - result.eg;
+  return (
+    <div style={{ margin: '6px 0', borderRadius: 14, overflow: 'hidden', border: '1.5px solid ' + C.green, background: '#fff' }}>
+      <div style={{ background: 'linear-gradient(135deg,' + C.forest + ',' + C.green + ')', padding: '14px 16px', textAlign: 'center', color: '#fff' }}>
+        <div style={{ fontSize: 12, opacity: 0.8, marginBottom: 2 }}>Du lässt gerade liegen:</div>
+        <div style={{ fontSize: 28, fontWeight: 800, fontFamily: "'Playfair Display',serif" }}>
+          <CountUp target={diff * 14} /> €
+        </div>
+        <div style={{ fontSize: 11, opacity: 0.75 }}>über den Bezugszeitraum</div>
+      </div>
+      <div style={{ padding: '14px 16px' }}>
+        <div style={{ fontSize: 13, color: C.textMed, lineHeight: 1.6, marginBottom: 14 }}>
+          ElterngeldFix zeigt dir Schritt für Schritt, wie du das holst — ohne Fehler, ohne Behörden-Stress.
+        </div>
+        <a
+          href={THRIVECART_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ display: 'block', background: 'linear-gradient(135deg,' + C.green + ',' + C.greenMid + ')', color: '#fff', borderRadius: 11, padding: '13px 16px', textAlign: 'center', fontSize: 15, fontWeight: 800, textDecoration: 'none', letterSpacing: 0.2 }}
+        >
+          Jetzt ElterngeldFix — nur 44 € →
+        </a>
+        <div style={{ textAlign: 'center', marginTop: 8, fontSize: 11, color: C.textLight }}>
+          Einmalig · Sofort Zugang · Geld-zurück-Garantie
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function FAQ({ q, a }) {
   const [open, setOpen] = useState(false);
   return (
@@ -525,7 +518,6 @@ function FAQ({ q, a }) {
 
 export default function Home() {
   const [step, setStep] = useState(0);
-  const [afterStep, setAfterStep] = useState(0);
   const [answers, setAnswers] = useState({});
   const [msgs, setMsgs] = useState([]);
   const [showOpts, setShowOpts] = useState(false);
@@ -533,12 +525,8 @@ export default function Home() {
   const [emailGated, setEmailGated] = useState(false);
   const [resultShown, setResultShown] = useState(false);
   const [wantHelp, setWantHelp] = useState(null);
-  const [afterStarted, setAfterStarted] = useState(false);
-  const [completed, setCompleted] = useState(false);
   const [uName, setUName] = useState('');
   const [userEmail, setUserEmail] = useState('');
-  const [userPhone, setUserPhone] = useState('');
-  const [userTime, setUserTime] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const chatRef = useRef(null);
   const bottomRef = useRef(null);
@@ -546,7 +534,6 @@ export default function Home() {
   const resultRef = useRef(null);
 
   const cur = FLOW[step];
-  const afterCur = AFTER_FLOW[afterStep];
   const result = emailGated ? calcEG(answers) : null;
 
   useEffect(() => {
@@ -566,17 +553,6 @@ export default function Home() {
     }
   }, [step, started]);
 
-  useEffect(() => {
-    if (!afterStarted) return;
-    if (!afterCur) return;
-    const nm = [];
-    const botText = Array.isArray(afterCur.bot) ? afterCur.bot : [afterCur.bot];
-    for (let i = 0; i < botText.length; i++) {
-      nm.push({ from: 'bot', text: botText[i], delay: i * 600 + 200, id: 'after-' + afterStep + '-b-' + i });
-    }
-    setMsgs((p) => p.concat(nm));
-    setTimeout(() => setShowOpts(true), botText.length * 600 + 400);
-  }, [afterStep, afterStarted]);
 
   // Allgemeiner Scroll für neue Nachrichten
   useEffect(() => {
@@ -638,23 +614,6 @@ export default function Home() {
     setTimeout(() => setStep(nextStep), 300);
   };
 
-  const afterAnswer = (display, value) => {
-    setShowOpts(false);
-    setMsgs((p) => p.concat([{ from: 'user', text: display, id: 'after-' + afterStep + '-u' }]));
-    
-    const updatedAnswers = { ...answers, [afterCur.id]: value };
-    setAnswers(updatedAnswers);
-
-    if (afterCur.id === 'time') {
-      setUserTime(value);
-    }
-
-    if (afterStep === AFTER_FLOW.length - 1) {
-      setTimeout(() => onFinalSubmit(value, updatedAnswers), 300);
-    } else {
-      setTimeout(() => setAfterStep(afterStep + 1), 300);
-    }
-  };
 
   const onEmail = (firstName, email) => {
     setUName(firstName);
@@ -681,53 +640,12 @@ export default function Home() {
     setWantHelp(want);
     if (want === 'yes') {
       setMsgs((p) => p.concat([{ from: 'user', text: 'Ja', id: 'help-yes' }]));
-      setTimeout(() => {
-        setAfterStarted(true);
-      }, 600);
     } else {
       setMsgs((p) => p.concat([{ from: 'user', text: 'Nein', id: 'help-no' }]));
       setTimeout(() => {
-        setMsgs((p) => p.concat([{ from: 'bot', text: 'Danke! Alles Gute für dich und deine Familie! 💚', delay: 300, id: 'exit-b' }]));
+        setMsgs((p) => p.concat([{ from: 'bot', text: 'Alles gut! Alles Gute für dich und dein Baby 💚', delay: 300, id: 'exit-b' }]));
       }, 600);
     }
-  };
-
-  const onFinalSubmit = (timeValue, finalAnswers) => {
-    setSubmitting(true);
-    const a = finalAnswers || answers;
-    const r = calcEG(a);
-    const finalCallTime = timeValue || userTime || '';
-
-    fetch('https://hooks.zapier.com/hooks/catch/26304169/uvmn326/', {
-      method: 'POST',
-      body: JSON.stringify({
-        timestamp: new Date().toISOString(),
-        name: uName,
-        email: userEmail,
-        phone: userPhone,
-        callTime: finalCallTime,
-        et: a.et,
-        arbeitsmodell: a.arbeitsmodell,
-        einkommen: a.einkommen_angestellt || a.einkommen_selbstaendig || '',
-        geschwister: a.geschwister || '',
-        steuerklasse: a.steuerklasse || '',
-        antrag_status: a.antrag_status || '',
-        partnerschaftsbonus: a.partnerschaftsbonus || '',
-        problem: a.problem_question || '',
-        helpPreference: a.help_preference || '',
-        elterngeld_ohne: r.eg,
-        elterngeld_mit: r.opt,
-        elterngeld_diff: r.diff,
-      }),
-    }).catch(console.log);
-
-    setTimeout(() => {
-      setSubmitting(false);
-      setCompleted(true);
-      const monthlyDiff = r.opt - r.eg;
-      const yearlyDiff = monthlyDiff * 12;
-      setMsgs((p) => p.concat([{ from: 'bot', text: `Vielen Dank! Jemand aus dem Team wird sich telefonisch bei dir melden und dir zeigen, wie du die +${monthlyDiff}€/Monat (+${yearlyDiff.toLocaleString('de-DE')}€/Jahr) rausholst. 💚`, delay: 300, id: 'complete-b' }]));
-    }, 600);
   };
 
   return (
@@ -768,7 +686,7 @@ export default function Home() {
                 <div ref={resultRef}>
                   <Result result={result} name={uName} />
                   <div style={{ marginTop: 12, fontSize: 13, fontWeight: 600, color: C.text, lineHeight: 1.5 }}>
-                    Sollen wir gemeinsam schauen, wie du die +{result.opt - result.eg} € holst?
+                    Sollen wir dir helfen, die +{result.opt - result.eg} € zu holen?
                   </div>
                   <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
                     <button onClick={() => handleHelpDecision('yes')} style={{ flex: 1, background: C.green, color: '#fff', border: 'none', borderRadius: 10, padding: '10px', fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>Ja</button>
@@ -777,45 +695,25 @@ export default function Home() {
                 </div>
               )}
 
-              {afterStarted && !completed && afterCur?.id === 'phone' && (
-                <PhoneInput onSubmit={(phone) => { setUserPhone(phone); afterAnswer(phone, phone); }} loading={submitting} />
-              )}
+              {wantHelp === 'yes' && result && <PurchaseCard result={result} />}
 
               <div ref={bottomRef} />
             </div>
 
             {/* Options — klebt immer am unteren Rand */}
-            {showOpts && !completed && (
-              // Haupt-Flow Auswahl
-              (cur && cur.id !== 'et' && step <= FLOW.length - 1 && !emailGated && !resultShown) ? (
-                <div style={{ flexShrink: 0, borderTop: '1px solid ' + C.border, padding: '8px 12px 10px', background: '#fff', maxHeight: '45vh', overflowY: 'auto' }}>
-                  {cur.type === 'select' && (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-                      {cur.options.map((o) => (
-                        <button key={o.value} onClick={() => answer(o.label, o.value)}
-                          style={{ width: '100%', textAlign: 'left', background: '#fff', border: '1.5px solid ' + C.green, color: C.green, borderRadius: 10, padding: '10px 14px', fontSize: 13.5, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer' }}>
-                          {o.label}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ) :
-              // After-Flow Auswahl
-              (afterStarted && afterCur && afterCur.id !== 'phone') ? (
-                <div style={{ flexShrink: 0, borderTop: '1px solid ' + C.border, padding: '8px 12px 10px', background: '#fff', maxHeight: '45vh', overflowY: 'auto' }}>
-                  {afterCur.type === 'select' && (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-                      {afterCur.options.map((o) => (
-                        <button key={o.value} onClick={() => afterAnswer(o.label, o.value)}
-                          style={{ width: '100%', textAlign: 'left', background: '#fff', border: '1.5px solid ' + C.green, color: C.green, borderRadius: 10, padding: '10px 14px', fontSize: 13.5, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer' }}>
-                          {o.label}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ) : null
+            {showOpts && cur && cur.id !== 'et' && step <= FLOW.length - 1 && !emailGated && !resultShown && (
+              <div style={{ flexShrink: 0, borderTop: '1px solid ' + C.border, padding: '8px 12px 10px', background: '#fff', maxHeight: '45vh', overflowY: 'auto' }}>
+                {cur.type === 'select' && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+                    {cur.options.map((o) => (
+                      <button key={o.value} onClick={() => answer(o.label, o.value)}
+                        style={{ width: '100%', textAlign: 'left', background: '#fff', border: '1.5px solid ' + C.green, color: C.green, borderRadius: 10, padding: '10px 14px', fontSize: 13.5, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer' }}>
+                        {o.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
             )}
           </div>
         </section>
