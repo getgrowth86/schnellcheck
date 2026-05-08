@@ -652,6 +652,14 @@ export default function Home() {
     setUName(firstName);
     setUserEmail(email);
     setMsgs((p) => p.concat([{ from: 'user', text: firstName, id: 'email-u' }]));
+
+    // Brevo-Push im Hintergrund
+    fetch('/api/lead', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: firstName, email, answers }),
+    }).catch(console.error);
+
     setTimeout(() => {
       setEmailGated(true);
       setShowOpts(false);
