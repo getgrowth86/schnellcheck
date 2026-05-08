@@ -533,7 +533,7 @@ function FAQ({ q, a }) {
 }
 
 export default function Home() {
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(0);
   const [afterStep, setAfterStep] = useState(0);
   const [answers, setAnswers] = useState({});
   const [msgs, setMsgs] = useState([]);
@@ -565,7 +565,12 @@ export default function Home() {
       nm.push({ from: 'bot', text: botText[i], delay: i * 600 + 200, id: step + '-b-' + i });
     }
     setMsgs((p) => p.concat(nm));
-    setTimeout(() => setShowOpts(true), botText.length * 600 + 400);
+    if (cur.type === 'start') {
+      // Auto-advance welcome without button
+      setTimeout(() => setStep(1), botText.length * 600 + 600);
+    } else {
+      setTimeout(() => setShowOpts(true), botText.length * 600 + 400);
+    }
   }, [step, started]);
 
   useEffect(() => {
@@ -582,7 +587,9 @@ export default function Home() {
 
   useEffect(() => {
     setTimeout(() => {
-      bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      if (chatRef.current) {
+        chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: 'smooth' });
+      }
     }, 80);
   }, [msgs, showOpts, resultShown, wantHelp, emailGated]);
 
@@ -720,8 +727,8 @@ export default function Home() {
         <section style={{ maxWidth: 720, margin: '0 auto', padding: '0 12px 24px' }}>
           <div style={{ background: '#fff', borderRadius: 16, border: '1px solid ' + C.border, overflow: 'hidden' }}>
 
-            {/* Messages */}
-            <div ref={chatRef} style={{ padding: '16px 14px 8px', display: 'flex', flexDirection: 'column', gap: 6 }}>
+            {/* Messages — fixed height, scrolls like WhatsApp */}
+            <div ref={chatRef} style={{ height: 'calc(100dvh - 200px)', overflowY: 'auto', padding: '16px 14px 8px', display: 'flex', flexDirection: 'column', gap: 6 }}>
               {msgs.map((m) => (m.from === 'bot' ? <Bot key={m.id} delay={m.delay}>{m.text}</Bot> : <User key={m.id} text={m.text} />))}
 
               {showOpts && cur?.id === 'et' && <DateInput onSubmit={onDateSubmit} loading={submitting} />}
