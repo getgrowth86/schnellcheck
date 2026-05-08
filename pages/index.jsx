@@ -769,8 +769,17 @@ export default function Home() {
 
             {/* Options — klebt immer am unteren Rand */}
             {showOpts && cur && cur.id !== 'et' && step <= FLOW.length - 1 && !emailGated && !resultShown && (
-              <div style={{ flexShrink: 0, borderTop: '1px solid ' + C.border, padding: '10px 14px 12px', background: C.greenFaint }}>
-                {cur.type === 'select' && <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>{cur.options.map((o) => <Btn key={o.value} label={o.label} onClick={() => answer(o.label, o.value)} />)}</div>}
+              <div style={{ flexShrink: 0, borderTop: '1px solid ' + C.border, padding: '8px 12px 10px', background: '#fff', maxHeight: '45vh', overflowY: 'auto' }}>
+                {cur.type === 'select' && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+                    {cur.options.map((o) => (
+                      <button key={o.value} onClick={() => answer(o.label, o.value)}
+                        style={{ width: '100%', textAlign: 'left', background: '#fff', border: '1.5px solid ' + C.green, color: C.green, borderRadius: 10, padding: '10px 14px', fontSize: 13.5, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer' }}>
+                        {o.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
           </div>
