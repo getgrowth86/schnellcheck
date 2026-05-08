@@ -184,9 +184,9 @@ function Bot({ children, delay }) {
   }, [delay]);
 
   return (
-    <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start', opacity: show ? 1 : 0, transition: 'opacity 0.3s', marginBottom: 12 }}>
-      <img src={ALINA_FOTO} alt="Alina" style={{ width: 32, height: 32, borderRadius: '50%', objectFit: 'cover', objectPosition: 'center 30%', flexShrink: 0 }} />
-      <div style={{ background: C.borderLight, borderRadius: '4px 14px 14px 14px', padding: '11px 15px', fontSize: 14.5, lineHeight: 1.55, maxWidth: '82%', color: C.text }}>
+    <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start', opacity: show ? 1 : 0, transition: 'opacity 0.3s', marginBottom: 6 }}>
+      <img src={ALINA_FOTO} alt="Alina" style={{ width: 28, height: 28, borderRadius: '50%', objectFit: 'cover', objectPosition: 'center 30%', flexShrink: 0 }} />
+      <div style={{ background: C.borderLight, borderRadius: '4px 12px 12px 12px', padding: '9px 12px', fontSize: 13.5, lineHeight: 1.5, maxWidth: '84%', color: C.text }}>
         {show ? children : '...'}
       </div>
     </div>
@@ -195,8 +195,8 @@ function Bot({ children, delay }) {
 
 function User({ text }) {
   return (
-    <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
-      <div style={{ background: C.green, color: '#fff', borderRadius: '14px 4px 14px 14px', padding: '10px 15px', fontSize: 14.5 }}>{text}</div>
+    <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 6 }}>
+      <div style={{ background: C.green, color: '#fff', borderRadius: '12px 4px 12px 12px', padding: '8px 12px', fontSize: 13.5 }}>{text}</div>
     </div>
   );
 }
@@ -538,7 +538,7 @@ export default function Home() {
   const [answers, setAnswers] = useState({});
   const [msgs, setMsgs] = useState([]);
   const [showOpts, setShowOpts] = useState(false);
-  const [started, setStarted] = useState(false);
+  const [started, setStarted] = useState(true);
   const [emailGated, setEmailGated] = useState(false);
   const [resultShown, setResultShown] = useState(false);
   const [wantHelp, setWantHelp] = useState(null);
@@ -550,6 +550,7 @@ export default function Home() {
   const [userTime, setUserTime] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const chatRef = useRef(null);
+  const bottomRef = useRef(null);
 
   const cur = FLOW[step];
   const afterCur = AFTER_FLOW[afterStep];
@@ -580,7 +581,9 @@ export default function Home() {
   }, [afterStep, afterStarted]);
 
   useEffect(() => {
-    if (chatRef.current) chatRef.current.scrollTop = chatRef.current.scrollHeight;
+    setTimeout(() => {
+      bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 80);
   }, [msgs, showOpts, resultShown, wantHelp, emailGated]);
 
   const onDateSubmit = (date) => {
@@ -692,94 +695,46 @@ export default function Home() {
   };
 
   return (
-    <div style={{ fontFamily: "'DM Sans',system-ui,sans-serif", color: C.text, background: C.cream, minHeight: '100vh' }}>
+    <div style={{ fontFamily: "'DM Sans',system-ui,sans-serif", color: C.text, background: C.cream, minHeight: '100dvh' }}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap');*{box-sizing:border-box;margin:0;padding:0}a{color:${C.green}}`}</style>
 
+      {/* ── Nav ── */}
       <nav style={{ background: '#fff', borderBottom: '1px solid ' + C.border, padding: '8px 16px', position: 'sticky', top: 0, zIndex: 20 }}>
         <div style={{ maxWidth: 720, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <img src={LOGO} alt="Zwergengruppe" style={{ height: 28 }} />
+          <img src={LOGO} alt="Zwergengruppe" style={{ height: 26 }} />
+          <div style={{ fontSize: 11, color: C.textLight }}>100+ Familien · kostenlos · 2 Min</div>
         </div>
       </nav>
 
-      <section style={{ maxWidth: 720, margin: '0 auto', padding: '20px 20px 12px', textAlign: 'center' }}>
-        <button
-          onClick={() => { setStarted(true); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-          style={{
-            background: '#fee2e2',
-            color: '#b91c1c',
-            border: '1px solid #fca5a5',
-            borderRadius: 999,
-            padding: '6px 14px',
-            fontSize: 12.5,
-            fontWeight: 600,
-            cursor: 'pointer',
-            fontFamily: 'inherit',
-            marginBottom: 16,
-            boxShadow: '0 2px 4px rgba(220,38,38,0.1)',
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 6,
-          }}
-        >
-          🔴 Steuerklassenwechsel? Nur vor der Geburt möglich!
-        </button>
-        <h1 style={{ fontFamily: "'Playfair Display',serif", fontSize: 'clamp(22px,5vw,36px)', fontWeight: 700, color: C.forest }}>
-          Verschenkst du <span style={{ color: C.accent, fontStyle: 'italic' }}>tausende Euro</span> Elterngeld?
+      {/* ── Compact Header ── */}
+      <div style={{ maxWidth: 720, margin: '0 auto', padding: '10px 16px 8px', textAlign: 'center' }}>
+        <h1 style={{ fontFamily: "'Playfair Display',serif", fontSize: 'clamp(18px,4.5vw,28px)', fontWeight: 700, color: C.forest, lineHeight: 1.2 }}>
+          Wie viel Elterngeld steht dir wirklich zu?
         </h1>
-        <p style={{ fontSize: 14, color: C.textMed, marginTop: 8, maxWidth: 540, margin: '8px auto 0' }}>
-          Beantworte 5 kurze Fragen und erfahre sofort, wie viel Elterngeld dir zusteht und wie du mehr herausholen kannst.
+        <p style={{ fontSize: 12.5, color: C.textMed, marginTop: 4 }}>
+          Beantworte 5 kurze Fragen — Alina zeigt dir dein Ergebnis sofort.
         </p>
-        <div style={{ display: 'flex', justifyContent: 'center', gap: 32, marginTop: 20, flexWrap: 'wrap' }}>
-          <div>
-            <div style={{ fontSize: 22, fontWeight: 700, color: C.forest, fontFamily: "'Playfair Display',serif" }}>100+</div>
-            <div style={{ fontSize: 11, color: C.textLight }}>Familien beraten</div>
-          </div>
-          <div>
-            <div style={{ fontSize: 22, fontWeight: 700, color: C.forest, fontFamily: "'Playfair Display',serif" }}>Ø 4.200 €</div>
-            <div style={{ fontSize: 11, color: C.textLight }}>mehr Elterngeld</div>
-          </div>
-          <div>
-            <div style={{ fontSize: 22, fontWeight: 700, color: C.forest, fontFamily: "'Playfair Display',serif" }}>0</div>
-            <div style={{ fontSize: 11, color: C.textLight }}>Antrags-Ablehnungen</div>
-          </div>
-        </div>
-      </section>
+      </div>
 
-      {!started ? (
-        <section style={{ maxWidth: 720, margin: '0 auto', padding: '0 20px 16px' }}>
-          <div style={{ background: '#fff', borderRadius: 16, border: '1px solid ' + C.border, padding: '20px 24px', textAlign: 'center' }}>
-            <img src={ALINA_FOTO} alt="Alina" style={{ width: 56, height: 56, borderRadius: '50%', objectFit: 'cover', objectPosition: 'center 30%', marginBottom: 8 }} />
-            <h2 style={{ fontFamily: "'Playfair Display',serif", fontSize: 18, fontWeight: 700, color: C.forest }}>Kostenloser Elterngeld-Schnellcheck</h2>
-            <p style={{ fontSize: 13, color: C.textMed, margin: '8px 0 16px' }}>5 einfache Fragen · Unter 2 Minuten · Sofort dein Ergebnis</p>
-            <button
-              onClick={() => setStarted(true)}
-              style={{ background: 'linear-gradient(135deg,' + C.green + ',' + C.greenMid + ')', color: '#fff', border: 'none', borderRadius: 12, padding: '14px 32px', fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}
-            >
-              Jetzt Schnellcheck starten →
-            </button>
-            <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid ' + C.borderLight, fontSize: 12, color: C.textLight, textAlign: 'center', display: 'flex', justifyContent: 'center', gap: 16, flexWrap: 'wrap' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>✓ Keine Registrierung</div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>✓ Kein Spam</div>
-            </div>
-          </div>
-        </section>
-      ) : (
-        <section style={{ maxWidth: 720, margin: '0 auto', padding: '0 20px 24px' }}>
-          <div style={{ background: '#fff', borderRadius: 18, border: '1px solid ' + C.border, overflow: 'hidden' }}>
-            <div ref={chatRef} style={{ padding: '20px 18px', overflowY: 'auto', maxHeight: '45vh', display: 'flex', flexDirection: 'column', gap: 8 }}>
+      {/* ── Chat (füllt den Rest des Screens) ── */}
+        <section style={{ maxWidth: 720, margin: '0 auto', padding: '0 12px 12px' }}>
+          <div style={{ background: '#fff', borderRadius: 16, border: '1px solid ' + C.border, overflow: 'hidden', display: 'flex', flexDirection: 'column', height: 'calc(100dvh - 110px)' }}>
+
+            {/* Messages */}
+            <div ref={chatRef} style={{ flex: 1, padding: '14px 14px 8px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 6 }}>
               {msgs.map((m) => (m.from === 'bot' ? <Bot key={m.id} delay={m.delay}>{m.text}</Bot> : <User key={m.id} text={m.text} />))}
-              
+
               {showOpts && cur?.id === 'et' && <DateInput onSubmit={onDateSubmit} loading={submitting} />}
-              
+
               {step > FLOW.length - 1 && !emailGated && <EmailGate onSubmit={onEmail} loading={submitting} />}
-              
+
               {resultShown && result && !wantHelp && (
                 <>
                   <Result result={result} name={uName} />
-                  <div style={{ marginTop: 16, fontSize: 13.5, fontWeight: 600, color: C.text, lineHeight: 1.5 }}>
-                    Du siehst jetzt, wo +{result.opt - result.eg}€ Potenzial liegt. Sollen wir gemeinsam schauen, wie wir dir dabei helfen können?
+                  <div style={{ marginTop: 12, fontSize: 13, fontWeight: 600, color: C.text, lineHeight: 1.5 }}>
+                    Sollen wir gemeinsam schauen, wie du die +{result.opt - result.eg} € holst?
                   </div>
-                  <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
+                  <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
                     <button onClick={() => handleHelpDecision('yes')} style={{ flex: 1, background: C.green, color: '#fff', border: 'none', borderRadius: 10, padding: '10px', fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>Ja</button>
                     <button onClick={() => handleHelpDecision('no')} style={{ flex: 1, background: C.borderLight, color: C.text, border: 'none', borderRadius: 10, padding: '10px', fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>Nein</button>
                   </div>
@@ -793,17 +748,27 @@ export default function Home() {
                   {afterCur.type === 'select' && <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>{afterCur.options.map((o) => <Btn key={o.value} label={o.label} onClick={() => afterAnswer(o.label, o.value)} />)}</div>}
                 </div>
               )}
+
+              {afterStarted && !completed && afterCur?.id === 'phone' && <PhoneInput onSubmit={(phone) => { setUserPhone(phone); afterAnswer(phone, phone); }} loading={submitting} />}
+
+              {afterStarted && !completed && showOpts && afterCur && afterCur.id !== 'phone' && (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7, marginTop: 4 }}>
+                  {afterCur.type === 'select' && afterCur.options.map((o) => <Btn key={o.value} label={o.label} onClick={() => afterAnswer(o.label, o.value)} />)}
+                </div>
+              )}
+
+              <div ref={bottomRef} />
             </div>
 
+            {/* Options panel */}
             {showOpts && cur && cur.id !== 'et' && step <= FLOW.length - 1 && !emailGated && !resultShown && (
-              <div style={{ borderTop: '1px solid ' + C.border, padding: '14px 18px', background: C.greenFaint }}>
-                {cur.type === 'start' && <Btn label="Los geht's! 🚀" onClick={() => { setMsgs((p) => p.concat([{ from: 'user', text: 'Los geht\'s!', id: step + '-u' }])); setTimeout(() => setStep(step + 1), 300); }} />}
-                {cur.type === 'select' && <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>{cur.options.map((o) => <Btn key={o.value} label={o.label} onClick={() => answer(o.label, o.value)} />)}</div>}
+              <div style={{ borderTop: '1px solid ' + C.border, padding: '10px 14px', background: C.greenFaint, flexShrink: 0 }}>
+                {cur.type === 'start' && <Btn label="Los geht's! 🚀" onClick={() => { setMsgs((p) => p.concat([{ from: 'user', text: "Los geht's!", id: step + '-u' }])); setTimeout(() => setStep(step + 1), 300); }} />}
+                {cur.type === 'select' && <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>{cur.options.map((o) => <Btn key={o.value} label={o.label} onClick={() => answer(o.label, o.value)} />)}</div>}
               </div>
             )}
           </div>
         </section>
-      )}
 
       <section style={{ maxWidth: 720, margin: '0 auto', padding: '36px 20px 12px' }}>
         <h2 style={{ fontFamily: "'Playfair Display',serif", fontSize: 22, fontWeight: 700, color: C.forest, textAlign: 'center', marginBottom: 6 }}>Das haben andere Familien erreicht</h2>
