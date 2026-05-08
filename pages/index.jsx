@@ -727,8 +727,8 @@ export default function Home() {
         <section style={{ maxWidth: 720, margin: '0 auto', padding: '0 12px 24px' }}>
           <div style={{ background: '#fff', borderRadius: 16, border: '1px solid ' + C.border, overflow: 'hidden' }}>
 
-            {/* Messages — fixed height, scrolls like WhatsApp */}
-            <div ref={chatRef} style={{ height: 'calc(100dvh - 200px)', overflowY: 'auto', padding: '16px 14px 8px', display: 'flex', flexDirection: 'column', gap: 6 }}>
+            {/* Messages — wächst mit Content, scrollt wie WhatsApp wenn voll */}
+            <div ref={chatRef} style={{ maxHeight: 'calc(100dvh - 220px)', overflowY: 'auto', padding: '16px 14px 8px', display: 'flex', flexDirection: 'column', gap: 6 }}>
               {msgs.map((m) => (m.from === 'bot' ? <Bot key={m.id} delay={m.delay}>{m.text}</Bot> : <User key={m.id} text={m.text} />))}
 
               {showOpts && cur?.id === 'et' && <DateInput onSubmit={onDateSubmit} loading={submitting} />}
