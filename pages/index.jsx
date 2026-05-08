@@ -533,7 +533,7 @@ function FAQ({ q, a }) {
 }
 
 export default function Home() {
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState(1);
   const [afterStep, setAfterStep] = useState(0);
   const [answers, setAnswers] = useState({});
   const [msgs, setMsgs] = useState([]);
@@ -716,12 +716,12 @@ export default function Home() {
         </p>
       </div>
 
-      {/* ── Chat (füllt den Rest des Screens) ── */}
-        <section style={{ maxWidth: 720, margin: '0 auto', padding: '0 12px 12px' }}>
-          <div style={{ background: '#fff', borderRadius: 16, border: '1px solid ' + C.border, overflow: 'hidden', display: 'flex', flexDirection: 'column', height: 'calc(100dvh - 110px)' }}>
+      {/* ── Chat ── */}
+        <section style={{ maxWidth: 720, margin: '0 auto', padding: '0 12px 24px' }}>
+          <div style={{ background: '#fff', borderRadius: 16, border: '1px solid ' + C.border, overflow: 'hidden' }}>
 
             {/* Messages */}
-            <div ref={chatRef} style={{ flex: 1, padding: '14px 14px 8px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <div ref={chatRef} style={{ padding: '16px 14px 8px', display: 'flex', flexDirection: 'column', gap: 6 }}>
               {msgs.map((m) => (m.from === 'bot' ? <Bot key={m.id} delay={m.delay}>{m.text}</Bot> : <User key={m.id} text={m.text} />))}
 
               {showOpts && cur?.id === 'et' && <DateInput onSubmit={onDateSubmit} loading={submitting} />}
@@ -760,10 +760,9 @@ export default function Home() {
               <div ref={bottomRef} />
             </div>
 
-            {/* Options panel */}
+            {/* Options inline */}
             {showOpts && cur && cur.id !== 'et' && step <= FLOW.length - 1 && !emailGated && !resultShown && (
-              <div style={{ borderTop: '1px solid ' + C.border, padding: '10px 14px', background: C.greenFaint, flexShrink: 0 }}>
-                {cur.type === 'start' && <Btn label="Los geht's! 🚀" onClick={() => { setMsgs((p) => p.concat([{ from: 'user', text: "Los geht's!", id: step + '-u' }])); setTimeout(() => setStep(step + 1), 300); }} />}
+              <div style={{ padding: '8px 14px 14px' }}>
                 {cur.type === 'select' && <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>{cur.options.map((o) => <Btn key={o.value} label={o.label} onClick={() => answer(o.label, o.value)} />)}</div>}
               </div>
             )}
