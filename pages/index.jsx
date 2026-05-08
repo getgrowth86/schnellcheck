@@ -422,51 +422,78 @@ function EmailGate({ onSubmit, loading }) {
   );
 }
 
+function CountUp({ target, duration = 900 }) {
+  const [val, setVal] = useState(0);
+  useEffect(() => {
+    let current = 0;
+    const step = target / (duration / 16);
+    const t = setInterval(() => {
+      current += step;
+      if (current >= target) { setVal(target); clearInterval(t); }
+      else setVal(Math.round(current));
+    }, 16);
+    return () => clearInterval(t);
+  }, [target, duration]);
+  return val.toLocaleString('de-DE');
+}
+
 function Result({ result, name }) {
-  const savings = (result.opt - result.eg) * 12;
-  const hasDifference = (result.opt - result.eg) > 0;
+  const hasDiff = result.opt > result.eg;
+  const lossPerMonth = result.opt - result.eg;
+  const lossTotal = lossPerMonth * 14;
 
   return (
-    <div style={{ background: C.cream, borderRadius: 14, border: '1px solid ' + C.border, padding: 20, margin: '8px 0' }}>
-      <h3 style={{ fontFamily: "'Playfair Display',serif", fontSize: 16, fontWeight: 700, color: C.forest, margin: '0 0 16px' }}>
-        {name}, dein Ergebnis ist fertig:
-      </h3>
+    <div style={{ margin: '8px 0', display: 'flex', flexDirection: 'column', gap: 10 }}>
 
-      {hasDifference ? (
-        <>
-          <div style={{ marginBottom: 16 }}>
-            <div style={{ fontSize: 11, color: C.textLight, marginBottom: 6, fontWeight: 600 }}>OHNE INDIVIDUELLE BERATUNG:</div>
-            <div style={{ fontSize: 18, fontWeight: 700, color: C.text }}>{result.eg}€/Monat</div>
+      {/* Hero */}
+      <div style={{ background: 'linear-gradient(145deg,' + C.forest + ',' + C.green + ')', borderRadius: 16, padding: '28px 20px', textAlign: 'center', color: '#fff', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', top: -10, right: -10, fontSize: 100, opacity: 0.06, lineHeight: 1 }}>💶</div>
+        <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 2, opacity: 0.7, marginBottom: 8 }}>
+          {name ? name + ' — dein Ergebnis' : 'Dein Ergebnis'}
+        </div>
+        <div style={{ fontSize: 'clamp(52px,14vw,76px)', fontWeight: 800, fontFamily: "'Playfair Display',serif", lineHeight: 1, marginBottom: 4 }}>
+          <CountUp target={result.opt} /> €
+        </div>
+        <div style={{ fontSize: 14, opacity: 0.8, marginBottom: hasDiff ? 16 : 0 }}>
+          pro Monat — optimiert
+        </div>
+        {hasDiff && (
+          <div style={{ background: 'rgba(255,255,255,0.13)', borderRadius: 10, padding: '9px 14px', display: 'inline-block', fontSize: 13 }}>
+            Ohne Optimierung nur <strong>{result.eg.toLocaleString('de-DE')} €</strong> — du verlierst{' '}
+            <strong style={{ color: '#fcd34d' }}>{lossPerMonth} € pro Monat</strong>
           </div>
+        )}
+      </div>
 
-          <div style={{ marginBottom: 18 }}>
-            <div style={{ fontSize: 11, color: C.green, marginBottom: 6, fontWeight: 600 }}>INKL. INDIVIDUELLE OPTIMIERUNG:</div>
-            <div style={{ fontSize: 18, fontWeight: 700, color: C.green }}>{result.opt}€/Monat</div>
+      {/* Verlust-Banner */}
+      {hasDiff && (
+        <div style={{ background: '#fef2f2', border: '2px solid #fca5a5', borderRadius: 14, padding: '16px 18px', display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+          <div style={{ fontSize: 30, flexShrink: 0, lineHeight: 1 }}>⚠️</div>
+          <div>
+            <div style={{ fontSize: 15, fontWeight: 800, color: '#b91c1c', marginBottom: 4 }}>
+              Du lässt gerade <CountUp target={lossTotal} /> € liegen
+            </div>
+            <div style={{ fontSize: 13, color: '#7f1d1d', lineHeight: 1.5 }}>
+              Das Geld steht dir zu — aber nur wenn du es richtig beantragst. Die Elterngeldstelle sagt dir das nicht.
+            </div>
           </div>
-
-          <div style={{ background: C.greenFaint, borderRadius: 12, border: '1px solid ' + C.green, padding: 14, marginBottom: 14 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: C.green, marginBottom: 6 }}>UNTERSCHIED:</div>
-            <div style={{ fontSize: 20, fontWeight: 700, color: C.green, marginBottom: 8 }}>+{(result.opt - result.eg)}€ / Monat</div>
-            <div style={{ fontSize: 12, fontWeight: 700, color: C.green }}>Jährlich: +{savings.toLocaleString('de-DE')}€</div>
-          </div>
-        </>
-      ) : (
-        <>
-          <div style={{ marginBottom: 18 }}>
-            <div style={{ fontSize: 11, color: C.green, marginBottom: 6, fontWeight: 600 }}>INKL. INDIVIDUELLE OPTIMIERUNG:</div>
-            <div style={{ fontSize: 18, fontWeight: 700, color: C.green }}>{result.opt}€/Monat</div>
-          </div>
-
-          <div style={{ background: C.greenFaint, borderRadius: 12, border: '1px solid ' + C.green, padding: 14, marginBottom: 14 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: C.green, marginBottom: 4 }}>Dir steht das Maximum zu!</div>
-            <div style={{ fontSize: 12, color: C.green, lineHeight: 1.4 }}>Alina optimiert deinen Antrag so, dass du die volle 1.800€ auch wirklich erhältst und keine Fehler entstehen.</div>
-          </div>
-        </>
+        </div>
       )}
 
-      <div style={{ fontSize: 13, color: C.textMed, lineHeight: 1.5, fontStyle: 'italic' }}>
-        Das ist, worum es in unserem Telefonat geht.
+      {/* Vorher / Nachher */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+        <div style={{ border: '1.5px solid ' + C.border, borderRadius: 12, padding: '14px 12px', background: '#fff', textAlign: 'center' }}>
+          <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', color: C.textLight, letterSpacing: 1, marginBottom: 6 }}>Ohne Optimierung</div>
+          <div style={{ fontSize: 26, fontWeight: 800, color: C.textMed }}>{result.eg.toLocaleString('de-DE')} €</div>
+          <div style={{ fontSize: 11, color: C.textLight, marginTop: 2 }}>/Monat</div>
+        </div>
+        <div style={{ border: '2px solid ' + C.green, borderRadius: 12, padding: '14px 12px', background: C.greenFaint, textAlign: 'center' }}>
+          <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', color: C.green, letterSpacing: 1, marginBottom: 6 }}>Mit Beratung ✓</div>
+          <div style={{ fontSize: 26, fontWeight: 800, color: C.forest }}>{result.opt.toLocaleString('de-DE')} €</div>
+          <div style={{ fontSize: 11, color: C.greenMid, marginTop: 2 }}>/Monat</div>
+        </div>
       </div>
+
     </div>
   );
 }
