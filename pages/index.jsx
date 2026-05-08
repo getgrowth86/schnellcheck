@@ -22,7 +22,7 @@ const C = {
 const FLOW = [
   {
     id: 'welcome',
-    bot: ['Ich bin Alina, Elterngeld-Expertin 👋', 'In 60 Sekunden weißt du genau, wie viel dir zusteht.'],
+    bot: ['Hey! 👋 Ich bin Alina — deine Elterngeld-Expertin.', 'Ich zeige dir in 60 Sekunden, wie viel dir wirklich zusteht. Versprochen. 💚'],
     type: 'start',
   },
   {
@@ -566,8 +566,8 @@ export default function Home() {
     }
     setMsgs((p) => p.concat(nm));
     if (cur.type === 'start') {
-      // Auto-advance welcome without button
-      setTimeout(() => setStep(1), botText.length * 600 + 600);
+      // Begrüßung anzeigen, dann erste Frage
+      setTimeout(() => setStep(1), botText.length * 800 + 1000);
     } else {
       setTimeout(() => setShowOpts(true), botText.length * 600 + 400);
     }
@@ -709,7 +709,7 @@ export default function Home() {
       <nav style={{ background: '#fff', borderBottom: '1px solid ' + C.border, padding: '8px 16px', position: 'sticky', top: 0, zIndex: 20 }}>
         <div style={{ maxWidth: 720, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <img src={LOGO} alt="Zwergengruppe" style={{ height: 26 }} />
-          <div style={{ fontSize: 11, color: C.textLight }}>100+ Familien · kostenlos · 2 Min</div>
+          <div style={{ fontSize: 11, color: C.textLight }}>100+ Familien · kostenlos · 60 Sek</div>
         </div>
       </nav>
 
