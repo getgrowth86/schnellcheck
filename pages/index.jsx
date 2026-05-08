@@ -592,8 +592,8 @@ export default function Home() {
   // Gezielter Scroll wenn EmailGate erscheint
   useEffect(() => {
     if (step > FLOW.length - 1 && !emailGated) {
-      const t1 = setTimeout(() => emailGateRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 200);
-      const t2 = setTimeout(() => emailGateRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 600);
+      const t1 = setTimeout(() => emailGateRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 200);
+      const t2 = setTimeout(() => emailGateRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 700);
       return () => { clearTimeout(t1); clearTimeout(t2); };
     }
   }, [step, emailGated]);
@@ -601,7 +601,7 @@ export default function Home() {
   // Gezielter Scroll wenn Result erscheint
   useEffect(() => {
     if (resultShown) {
-      const t = setTimeout(() => resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 300);
+      const t = setTimeout(() => resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 400);
       return () => clearTimeout(t);
     }
   }, [resultShown]);
@@ -748,9 +748,8 @@ export default function Home() {
 
               {step > FLOW.length - 1 && !emailGated && <div ref={emailGateRef}><EmailGate onSubmit={onEmail} loading={submitting} /></div>}
 
-              {resultShown && result && !wantHelp && <div ref={resultRef} />}
               {resultShown && result && !wantHelp && (
-                <>
+                <div ref={resultRef}>
                   <Result result={result} name={uName} />
                   <div style={{ marginTop: 12, fontSize: 13, fontWeight: 600, color: C.text, lineHeight: 1.5 }}>
                     Sollen wir gemeinsam schauen, wie du die +{result.opt - result.eg} € holst?
@@ -759,42 +758,48 @@ export default function Home() {
                     <button onClick={() => handleHelpDecision('yes')} style={{ flex: 1, background: C.green, color: '#fff', border: 'none', borderRadius: 10, padding: '10px', fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>Ja</button>
                     <button onClick={() => handleHelpDecision('no')} style={{ flex: 1, background: C.borderLight, color: C.text, border: 'none', borderRadius: 10, padding: '10px', fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>Nein</button>
                   </div>
-                </>
-              )}
-
-              {afterStarted && !completed && afterCur?.id === 'phone' && <PhoneInput onSubmit={(phone) => { setUserPhone(phone); afterAnswer(phone, phone); }} loading={submitting} />}
-              
-              {afterStarted && !completed && showOpts && afterCur && afterCur.id !== 'phone' && (
-                <div style={{ borderTop: '1px solid ' + C.border, padding: '14px 18px', background: C.greenFaint }}>
-                  {afterCur.type === 'select' && <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>{afterCur.options.map((o) => <Btn key={o.value} label={o.label} onClick={() => afterAnswer(o.label, o.value)} />)}</div>}
                 </div>
               )}
 
-              {afterStarted && !completed && afterCur?.id === 'phone' && <PhoneInput onSubmit={(phone) => { setUserPhone(phone); afterAnswer(phone, phone); }} loading={submitting} />}
-
-              {afterStarted && !completed && showOpts && afterCur && afterCur.id !== 'phone' && (
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7, marginTop: 4 }}>
-                  {afterCur.type === 'select' && afterCur.options.map((o) => <Btn key={o.value} label={o.label} onClick={() => afterAnswer(o.label, o.value)} />)}
-                </div>
+              {afterStarted && !completed && afterCur?.id === 'phone' && (
+                <PhoneInput onSubmit={(phone) => { setUserPhone(phone); afterAnswer(phone, phone); }} loading={submitting} />
               )}
 
               <div ref={bottomRef} />
             </div>
 
             {/* Options — klebt immer am unteren Rand */}
-            {showOpts && cur && cur.id !== 'et' && step <= FLOW.length - 1 && !emailGated && !resultShown && (
-              <div style={{ flexShrink: 0, borderTop: '1px solid ' + C.border, padding: '8px 12px 10px', background: '#fff', maxHeight: '45vh', overflowY: 'auto' }}>
-                {cur.type === 'select' && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-                    {cur.options.map((o) => (
-                      <button key={o.value} onClick={() => answer(o.label, o.value)}
-                        style={{ width: '100%', textAlign: 'left', background: '#fff', border: '1.5px solid ' + C.green, color: C.green, borderRadius: 10, padding: '10px 14px', fontSize: 13.5, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer' }}>
-                        {o.label}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
+            {showOpts && !completed && (
+              // Haupt-Flow Auswahl
+              (cur && cur.id !== 'et' && step <= FLOW.length - 1 && !emailGated && !resultShown) ? (
+                <div style={{ flexShrink: 0, borderTop: '1px solid ' + C.border, padding: '8px 12px 10px', background: '#fff', maxHeight: '45vh', overflowY: 'auto' }}>
+                  {cur.type === 'select' && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+                      {cur.options.map((o) => (
+                        <button key={o.value} onClick={() => answer(o.label, o.value)}
+                          style={{ width: '100%', textAlign: 'left', background: '#fff', border: '1.5px solid ' + C.green, color: C.green, borderRadius: 10, padding: '10px 14px', fontSize: 13.5, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer' }}>
+                          {o.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ) :
+              // After-Flow Auswahl
+              (afterStarted && afterCur && afterCur.id !== 'phone') ? (
+                <div style={{ flexShrink: 0, borderTop: '1px solid ' + C.border, padding: '8px 12px 10px', background: '#fff', maxHeight: '45vh', overflowY: 'auto' }}>
+                  {afterCur.type === 'select' && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+                      {afterCur.options.map((o) => (
+                        <button key={o.value} onClick={() => afterAnswer(o.label, o.value)}
+                          style={{ width: '100%', textAlign: 'left', background: '#fff', border: '1.5px solid ' + C.green, color: C.green, borderRadius: 10, padding: '10px 14px', fontSize: 13.5, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer' }}>
+                          {o.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ) : null
             )}
           </div>
         </section>
