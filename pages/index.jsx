@@ -443,56 +443,47 @@ function Result({ result, name }) {
   const lossTotal = lossPerMonth * 14;
 
   return (
-    <div style={{ margin: '8px 0', display: 'flex', flexDirection: 'column', gap: 10 }}>
+    <div style={{ margin: '6px 0', borderRadius: 14, overflow: 'hidden', border: '1px solid ' + C.border }}>
 
-      {/* Hero */}
-      <div style={{ background: 'linear-gradient(145deg,' + C.forest + ',' + C.green + ')', borderRadius: 16, padding: '28px 20px', textAlign: 'center', color: '#fff', position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', top: -10, right: -10, fontSize: 100, opacity: 0.06, lineHeight: 1 }}>💶</div>
-        <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 2, opacity: 0.7, marginBottom: 8 }}>
+      {/* Hero — kompakt */}
+      <div style={{ background: 'linear-gradient(145deg,' + C.forest + ',' + C.green + ')', padding: '16px 16px 14px', textAlign: 'center', color: '#fff' }}>
+        <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 2, opacity: 0.7, marginBottom: 4 }}>
           {name ? name + ' — dein Ergebnis' : 'Dein Ergebnis'}
         </div>
-        <div style={{ fontSize: 'clamp(52px,14vw,76px)', fontWeight: 800, fontFamily: "'Playfair Display',serif", lineHeight: 1, marginBottom: 4 }}>
+        <div style={{ fontSize: 'clamp(38px,11vw,52px)', fontWeight: 800, fontFamily: "'Playfair Display',serif", lineHeight: 1 }}>
           <CountUp target={result.opt} /> €
         </div>
-        <div style={{ fontSize: 14, opacity: 0.8, marginBottom: hasDiff ? 16 : 0 }}>
-          pro Monat — optimiert
-        </div>
-        {hasDiff && (
-          <div style={{ background: 'rgba(255,255,255,0.13)', borderRadius: 10, padding: '9px 14px', display: 'inline-block', fontSize: 13 }}>
-            Ohne Optimierung nur <strong>{result.eg.toLocaleString('de-DE')} €</strong> — du verlierst{' '}
-            <strong style={{ color: '#fcd34d' }}>{lossPerMonth} € pro Monat</strong>
-          </div>
-        )}
+        <div style={{ fontSize: 12, opacity: 0.75, marginTop: 2 }}>pro Monat — optimiert</div>
       </div>
 
-      {/* Verlust-Banner */}
+      {/* Vorher / Nachher + Verlust — alles in einer Zeile */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', background: '#fff' }}>
+        <div style={{ padding: '10px 12px', textAlign: 'center', borderRight: '1px solid ' + C.border }}>
+          <div style={{ fontSize: 9, fontWeight: 700, textTransform: 'uppercase', color: C.textLight, letterSpacing: 1 }}>Ohne Optimierung</div>
+          <div style={{ fontSize: 20, fontWeight: 800, color: C.textMed, marginTop: 2 }}>{result.eg.toLocaleString('de-DE')} €</div>
+          <div style={{ fontSize: 10, color: C.textLight }}>/Monat</div>
+        </div>
+        <div style={{ padding: '10px 12px', textAlign: 'center', background: C.greenFaint }}>
+          <div style={{ fontSize: 9, fontWeight: 700, textTransform: 'uppercase', color: C.green, letterSpacing: 1 }}>Mit Beratung ✓</div>
+          <div style={{ fontSize: 20, fontWeight: 800, color: C.forest, marginTop: 2 }}>{result.opt.toLocaleString('de-DE')} €</div>
+          <div style={{ fontSize: 10, color: C.greenMid }}>/Monat</div>
+        </div>
+      </div>
+
+      {/* Verlust-Zeile */}
       {hasDiff && (
-        <div style={{ background: '#fef2f2', border: '2px solid #fca5a5', borderRadius: 14, padding: '16px 18px', display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-          <div style={{ fontSize: 30, flexShrink: 0, lineHeight: 1 }}>⚠️</div>
+        <div style={{ background: '#fef2f2', borderTop: '1px solid #fca5a5', padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 10 }}>
+          <span style={{ fontSize: 20, flexShrink: 0 }}>⚠️</span>
           <div>
-            <div style={{ fontSize: 15, fontWeight: 800, color: '#b91c1c', marginBottom: 4 }}>
+            <div style={{ fontSize: 13, fontWeight: 800, color: '#b91c1c' }}>
               Du lässt gerade <CountUp target={lossTotal} /> € liegen
             </div>
-            <div style={{ fontSize: 13, color: '#7f1d1d', lineHeight: 1.5 }}>
-              Das Geld steht dir zu — aber nur wenn du es richtig beantragst. Die Elterngeldstelle sagt dir das nicht.
+            <div style={{ fontSize: 11, color: '#7f1d1d', lineHeight: 1.4, marginTop: 1 }}>
+              {lossPerMonth} € mehr/Monat — nur mit richtiger Beantragung.
             </div>
           </div>
         </div>
       )}
-
-      {/* Vorher / Nachher */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-        <div style={{ border: '1.5px solid ' + C.border, borderRadius: 12, padding: '14px 12px', background: '#fff', textAlign: 'center' }}>
-          <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', color: C.textLight, letterSpacing: 1, marginBottom: 6 }}>Ohne Optimierung</div>
-          <div style={{ fontSize: 26, fontWeight: 800, color: C.textMed }}>{result.eg.toLocaleString('de-DE')} €</div>
-          <div style={{ fontSize: 11, color: C.textLight, marginTop: 2 }}>/Monat</div>
-        </div>
-        <div style={{ border: '2px solid ' + C.green, borderRadius: 12, padding: '14px 12px', background: C.greenFaint, textAlign: 'center' }}>
-          <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', color: C.green, letterSpacing: 1, marginBottom: 6 }}>Mit Beratung ✓</div>
-          <div style={{ fontSize: 26, fontWeight: 800, color: C.forest }}>{result.opt.toLocaleString('de-DE')} €</div>
-          <div style={{ fontSize: 11, color: C.greenMid, marginTop: 2 }}>/Monat</div>
-        </div>
-      </div>
 
     </div>
   );
