@@ -586,12 +586,16 @@ export default function Home() {
   }, [afterStep, afterStarted]);
 
   useEffect(() => {
-    setTimeout(() => {
+    const scroll = () => {
       if (chatRef.current) {
         chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: 'smooth' });
       }
-    }, 80);
-  }, [msgs, showOpts, resultShown, wantHelp, emailGated]);
+    };
+    // Kurz warten bis DOM gerendert, dann nochmal für größere Components
+    const t1 = setTimeout(scroll, 100);
+    const t2 = setTimeout(scroll, 400);
+    return () => { clearTimeout(t1); clearTimeout(t2); };
+  }, [msgs, showOpts, resultShown, wantHelp, emailGated, step]);
 
   const onDateSubmit = (date) => {
     const displayDate = new Date(date).toLocaleDateString('de-DE');
