@@ -551,6 +551,8 @@ export default function Home() {
   const [submitting, setSubmitting] = useState(false);
   const chatRef = useRef(null);
   const bottomRef = useRef(null);
+  const emailGateRef = useRef(null);
+  const resultRef = useRef(null);
 
   const cur = FLOW[step];
   const afterCur = AFTER_FLOW[afterStep];
@@ -585,17 +587,33 @@ export default function Home() {
     setTimeout(() => setShowOpts(true), botText.length * 600 + 400);
   }, [afterStep, afterStarted]);
 
+  // Allgemeiner Scroll für neue Nachrichten
   useEffect(() => {
     const scroll = () => {
       if (chatRef.current) {
         chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: 'smooth' });
       }
     };
-    // Kurz warten bis DOM gerendert, dann nochmal für größere Components
-    const t1 = setTimeout(scroll, 100);
-    const t2 = setTimeout(scroll, 400);
-    return () => { clearTimeout(t1); clearTimeout(t2); };
-  }, [msgs, showOpts, resultShown, wantHelp, emailGated, step]);
+    const t = setTimeout(scroll, 120);
+    return () => clearTimeout(t);
+  }, [msgs, showOpts]);
+
+  // Gezielter Scroll wenn EmailGate erscheint
+  useEffect(() => {
+    if (step > FLOW.length - 1 && !emailGated) {
+      const t1 = setTimeout(() => emailGateRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 200);
+      const t2 = setTimeout(() => emailGateRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 600);
+      return () => { clearTimeout(t1); clearTimeout(t2); };
+    }
+  }, [step, emailGated]);
+
+  // Gezielter Scroll wenn Result erscheint
+  useEffect(() => {
+    if (resultShown) {
+      const t = setTimeout(() => resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 300);
+      return () => clearTimeout(t);
+    }
+  }, [resultShown]);
 
   const onDateSubmit = (date) => {
     const displayDate = new Date(date).toLocaleDateString('de-DE');
@@ -737,8 +755,9 @@ export default function Home() {
 
               {showOpts && cur?.id === 'et' && <DateInput onSubmit={onDateSubmit} loading={submitting} />}
 
-              {step > FLOW.length - 1 && !emailGated && <EmailGate onSubmit={onEmail} loading={submitting} />}
+              {step > FLOW.length - 1 && !emailGated && <div ref={emailGateRef}><EmailGate onSubmit={onEmail} loading={submitting} /></div>}
 
+              {resultShown && result && !wantHelp && <div ref={resultRef} />}
               {resultShown && result && !wantHelp && (
                 <>
                   <Result result={result} name={uName} />
