@@ -724,11 +724,11 @@ export default function Home() {
       </div>
 
       {/* ── Chat ── */}
-        <section style={{ maxWidth: 720, margin: '0 auto', padding: '0 12px 24px' }}>
-          <div style={{ background: '#fff', borderRadius: 16, border: '1px solid ' + C.border, overflow: 'hidden' }}>
+        <section style={{ maxWidth: 720, margin: '0 auto', padding: '0 12px 12px' }}>
+          <div style={{ background: '#fff', borderRadius: 16, border: '1px solid ' + C.border, overflow: 'hidden', display: 'flex', flexDirection: 'column', height: 'calc(100dvh - 148px)' }}>
 
-            {/* Messages — wächst mit Content, scrollt wie WhatsApp wenn voll */}
-            <div ref={chatRef} style={{ maxHeight: 'calc(100dvh - 220px)', overflowY: 'auto', padding: '16px 14px 8px', display: 'flex', flexDirection: 'column', gap: 6 }}>
+            {/* Messages — scrollbar, Options kleben unten */}
+            <div ref={chatRef} style={{ flex: 1, overflowY: 'auto', padding: '16px 14px 8px', display: 'flex', flexDirection: 'column', gap: 6 }}>
               {msgs.map((m) => (m.from === 'bot' ? <Bot key={m.id} delay={m.delay}>{m.text}</Bot> : <User key={m.id} text={m.text} />))}
 
               {showOpts && cur?.id === 'et' && <DateInput onSubmit={onDateSubmit} loading={submitting} />}
@@ -767,9 +767,9 @@ export default function Home() {
               <div ref={bottomRef} />
             </div>
 
-            {/* Options inline */}
+            {/* Options — klebt immer am unteren Rand */}
             {showOpts && cur && cur.id !== 'et' && step <= FLOW.length - 1 && !emailGated && !resultShown && (
-              <div style={{ padding: '8px 14px 14px' }}>
+              <div style={{ flexShrink: 0, borderTop: '1px solid ' + C.border, padding: '10px 14px 12px', background: C.greenFaint }}>
                 {cur.type === 'select' && <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>{cur.options.map((o) => <Btn key={o.value} label={o.label} onClick={() => answer(o.label, o.value)} />)}</div>}
               </div>
             )}
